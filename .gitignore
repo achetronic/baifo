@@ -1,0 +1,22 @@
+# Compiled binaries
+bin/
+dist/
+
+# Test artefacts
+*.test
+*.out
+coverage.txt
+
+# Editor / IDE state
+.vscode/
+.idea/
+*.swp
+
+# Local config / runtime state
+.baifo/
+*.db
+/config/
+
+# OS noise
+.DS_Store
+Thumbs.db
