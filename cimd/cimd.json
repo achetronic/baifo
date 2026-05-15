@@ -1,0 +1,20 @@
+{
+  "client_id": "https://lite.magec.dev/oauth/cimd.json",
+  "client_name": "Magec Lite",
+  "client_uri": "https://lite.magec.dev",
+  "logo_uri": "https://lite.magec.dev/logo.png",
+  "application_type": "native",
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "token_endpoint_auth_method": "none",
+  "redirect_uris": [
+    "http://127.0.0.1:33001/callback",
+    "http://127.0.0.1:33002/callback",
+    "http://127.0.0.1:33003/callback",
+    "http://127.0.0.1:33004/callback",
+    "http://127.0.0.1:33005/callback",
+    "http://127.0.0.1:33006/callback",
+    "http://127.0.0.1:33007/callback",
+    "http://127.0.0.1:33008/callback"
+  ]
+}

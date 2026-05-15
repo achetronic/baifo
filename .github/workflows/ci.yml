@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: v1.56.2
+
+      - name: Run tests
+        run: make test
+
+  # Validate the goreleaser config on every PR/push so a typo in
+  # .goreleaser.yaml is caught before someone pushes a tag and
+  # discovers it's broken at release time. Also runs a snapshot
+  # build to confirm cross-compilation still works for every
+  # target the release pipeline will produce.
+  release-check:
+    name: GoReleaser config check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Validate goreleaser config
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          version: "~> v2"
+          args: check
+
+      - name: Snapshot build (no publish)
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          version: "~> v2"
+          # --snapshot   → don't require a tag; synthesise the version
+          # --clean      → wipe dist/ first so CI runs are reproducible
+          # --skip=...   → don't try to push images / formulae from PRs;
+          #                we just want to confirm the matrix builds.
+          args: release --snapshot --clean --skip=publish,sign,docker,announce

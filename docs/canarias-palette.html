@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>baifo · Canarias palette</title>
+<style>
+  :root{
+    /* base: picón sand / lime-wash */
+    --bg:#211C18; --bg-alt:#2B2520; --bg-hover:#3A322E; --bg-focus:#473C34;
+    --border:#5E3119; --border-focus:#F2922B;
+    --text:#E8DDCB; --text-dim:#A89B86; --text-faint:#6E6356;
+    /* semantic */
+    --success:#7FA650; --warning:#F2922B; --error:#C2412B; --info:#C98A4B;
+    /* accent */
+    --primary:#F2922B; --focus:#F6AC56; --subtle:#5E3119;
+    /* pure cooled lava, reserved */
+    --lava:#7E2114;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:40px;
+    background:var(--bg); color:var(--text);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1{font-weight:600; letter-spacing:.5px; margin:0 0 4px}
+  h1 .acc{color:var(--primary)}
+  .sub{color:var(--text-dim); margin:0 0 36px; font-size:13px}
+  h2{font-size:12px; text-transform:uppercase; letter-spacing:2px;
+     color:var(--text-faint); margin:36px 0 14px; font-weight:600}
+  .grid{display:grid; gap:14px;
+        grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+  .sw{border:1px solid var(--border); border-radius:10px; overflow:hidden;
+      background:var(--bg-alt)}
+  .chip{height:78px}
+  .meta{padding:9px 12px}
+  .name{font-size:13px; color:var(--text)}
+  .hex{font-size:12px; color:var(--text-dim)}
+
+  /* TUI micro-mockup */
+  .tui{margin-top:40px; border:1px solid var(--border); border-radius:12px;
+       background:var(--bg-alt); overflow:hidden; max-width:720px}
+  .tabs{display:flex; gap:18px; padding:12px 16px;
+        border-bottom:1px solid var(--border); background:var(--bg)}
+  .tab{font-size:13px; color:var(--text-dim)}
+  .tab.active{color:var(--primary); font-weight:600;
+        border-bottom:2px solid var(--primary); padding-bottom:8px; margin-bottom:-8px}
+  .body{padding:16px}
+  .row{padding:7px 10px; border-radius:7px; font-size:13px; margin-bottom:3px;
+       display:flex; gap:10px; align-items:center}
+  .row.sel{background:var(--bg-hover)}
+  .dot{width:9px; height:9px; border-radius:50%; flex:none}
+  .muted{color:var(--text-dim)}
+  .faint{color:var(--text-faint)}
+  .panel-focus{border:1px solid var(--border-focus); border-radius:8px;
+       padding:10px 12px; margin-top:12px; background:var(--bg-focus)}
+  .badge{display:inline-block; padding:1px 8px; border-radius:20px;
+       font-size:11px; margin-right:6px}
+  .composer{margin-top:14px; border:1px solid var(--border-focus); border-radius:8px;
+       padding:10px 12px; color:var(--text-faint); background:var(--bg)}
+  .composer .car{color:var(--primary)}
+</style>
+</head>
+<body>
+  <h1><span class="acc">▰</span> baifo · <span class="acc">Canarias</span> palette</h1>
+  <p class="sub">picón · lava · sun · clay · lime-wash</p>
+
+  <h2>Base · picón &amp; lime-wash</h2>
+  <div class="grid" id="base"></div>
+
+  <h2>Semantic</h2>
+  <div class="grid" id="sem"></div>
+
+  <h2>Accent (fixed)</h2>
+  <div class="grid" id="acc"></div>
+
+  <div class="tui">
+    <div class="tabs">
+      <span class="tab active">chat</span>
+      <span class="tab">workers</span>
+      <span class="tab">sessions</span>
+    </div>
+    <div class="body">
+      <div class="row"><span class="dot" style="background:#F2922B"></span>root agent <span class="muted">· idle</span></div>
+      <div class="row sel"><span class="dot" style="background:#C2412B"></span>dynamic worker <span class="muted">· running</span></div>
+      <div class="row"><span class="dot" style="background:#C98A4B"></span>static worker <span class="faint">· idle</span></div>
+      <div class="panel-focus">
+        <span class="badge" style="background:#7FA650;color:#211C18">done</span>
+        <span class="badge" style="background:#F2922B;color:#211C18">running</span>
+        <span class="badge" style="background:#C2412B;color:#E8DDCB">failed</span>
+        <span class="muted" style="font-size:12px"> ← focused panel (sun border)</span>
+      </div>
+      <div class="composer"><span class="car">›</span> type a message…</div>
+    </div>
+  </div>
+
+<script>
+  const base=[
+    ["bg","#211C18","dark volcanic picón (background)"],
+    ["bg_alt","#2B2520","picón panel"],
+    ["bg_hover","#3A322E","picón (selected row)"],
+    ["bg_focus","#473C34","lightened picón"],
+    ["border","#5E3119","canarian clay"],
+    ["text","#E8DDCB","lime-wash off-white"],
+    ["text_dim","#A89B86","faded lime-wash"],
+    ["text_faint","#6E6356","faint lime-wash"],
+  ];
+  const sem=[
+    ["success","#7FA650","prickly-pear / aloe green"],
+    ["warning","#F2922B","sun"],
+    ["error","#C2412B","bright lava"],
+    ["info","#C98A4B","golden clay"],
+    ["lava (pure)","#7E2114","reserved for borders"],
+  ];
+  const acc=[
+    ["primary","#F2922B","sun"],
+    ["focus","#F6AC56","light sun"],
+    ["subtle","#5E3119","clay (background tint)"],
+  ];
+  function render(id,arr){
+    const el=document.getElementById(id);
+    el.innerHTML=arr.map(([n,h,d])=>`
+      <div class="sw">
+        <div class="chip" style="background:${h}"></div>
+        <div class="meta"><div class="name">${n}</div>
+          <div class="hex">${h} · ${d}</div></div>
+      </div>`).join("");
+  }
+  render("base",base); render("sem",sem); render("acc",acc);
+</script>
+</body>
+</html>
