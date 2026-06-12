@@ -106,6 +106,31 @@ func Register(providerType string, b Builder) {
 	builders[providerType] = b
 }
 
+// AuthFlow runs an interactive login for a provider type and persists
+// the resulting credentials for the provider named name under dir.
+type AuthFlow func(dir, name string) error
+
+// authFlows holds the provider types that support an interactive auth
+// flow. Populated by RegisterAuthFlow calls in the init() of each
+// provider subpackage, same lifecycle as builders.
+var authFlows = map[string]AuthFlow{}
+
+// RegisterAuthFlow associates a provider type with its interactive
+// login. Panics on duplicate registration, mirroring Register.
+func RegisterAuthFlow(providerType string, f AuthFlow) {
+	if _, ok := authFlows[providerType]; ok {
+		panic(fmt.Sprintf("providers: duplicate auth flow registration for %q", providerType))
+	}
+	authFlows[providerType] = f
+}
+
+// AuthFlowFor returns the auth flow registered for a provider type, or
+// false when the type has none.
+func AuthFlowFor(providerType string) (AuthFlow, bool) {
+	f, ok := authFlows[providerType]
+	return f, ok
+}
+
 // Reset clears every registration. Intended for tests that need to
 // install a fake builder without colliding with init() registrations
 // from other packages. NOT safe for production code paths.

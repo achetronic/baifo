@@ -44,12 +44,26 @@ func (t *TokenSet) IsExpired() bool {
 	return time.Now().After(t.ExpiresAt.Add(-5 * time.Minute))
 }
 
-func tokenFilePath(dir string) string {
-	return filepath.Join(dir, "anthropic_oauth.json")
+// tokenFilePath returns where the OAuth tokens for the provider named
+// name live. Keyed by provider name so several anthropic-type providers
+// (e.g. two different OAuth orgs) keep separate credentials. The name
+// comes from baifo.yaml, so characters unsafe for filenames are mapped
+// to '_'.
+func tokenFilePath(dir, name string) string {
+	safe := strings.Map(func(r rune) rune {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == '-', r == '_', r == '.':
+			return r
+		default:
+			return '_'
+		}
+	}, name)
+	return filepath.Join(dir, "oauth_"+safe+".json")
 }
 
-// RunOAuthFlow triggers the interactive login.
-func RunOAuthFlow(dir string) error {
+// RunOAuthFlow triggers the interactive login for the provider named
+// name, storing the tokens in its per-provider file.
+func RunOAuthFlow(dir, name string) error {
 	verifier, challenge, err := generatePKCE()
 	if err != nil {
 		return fmt.Errorf("generate PKCE: %w", err)
@@ -102,7 +116,7 @@ func RunOAuthFlow(dir string) error {
 		return fmt.Errorf("failed to fetch tokens: %w", err)
 	}
 
-	path := tokenFilePath(dir)
+	path := tokenFilePath(dir, name)
 	data, _ := json.MarshalIndent(ts, "", "  ")
 	if err := os.WriteFile(path, data, 0600); err != nil {
 		return fmt.Errorf("save tokens: %w", err)

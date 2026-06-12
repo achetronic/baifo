@@ -78,9 +78,9 @@ providers:
     type: anthropic                # (required) anthropic | openai | gemini | openai-compatible | ollama
     url: ""                        # optional; defaults per type
     auth: api_key                  # api_key (default) | oauth. "oauth" is anthropic-only:
-                                   # run `baifo provider auth anthropic` once (PKCE browser
-                                   # flow); tokens persist and refresh transparently, and
-                                   # api_key is then ignored.
+                                   # run `baifo provider auth <name>` once (PKCE browser
+                                   # flow); tokens persist per provider name and refresh
+                                   # transparently, and api_key is then ignored.
     api_key: ${secret:ANTHROPIC_API_KEY}  # supports secret expansion at config-load time
     headers: {}                    # optional extra headers (also secret-expandable)
     streaming: true                # SSE streaming; set false only for openai-compatible
@@ -314,11 +314,13 @@ unknown YAML fields.
   route to any endpoint that speaks the OpenAI API (LocalAI,
   OpenRouter, vLLM, …). `ollama` is also served by the openai package.
 - `providers[].auth`, `api_key` (default) or `oauth`. OAuth is
-  implemented for `type: anthropic` only: `baifo provider auth anthropic`
-  runs a PKCE browser flow, stores access + refresh tokens in
-  `~/.config/baifo/anthropic_oauth.json` and refreshes them
-  transparently (`OAuthTransport` in `internal/providers/anthropic`).
-  With `auth: oauth` the `api_key` field is ignored.
+  implemented for `type: anthropic` only: `baifo provider auth <name>`
+  resolves `<name>` against `providers[]`, runs a PKCE browser flow and
+  stores access + refresh tokens in `~/.config/baifo/oauth_<name>.json`,
+  refreshed transparently (`OAuthTransport` in
+  `internal/providers/anthropic`). Tokens are keyed by provider name, so
+  several providers of the same type (e.g. two OAuth orgs) keep separate
+  credentials. With `auth: oauth` the `api_key` field is ignored.
 - `providers[].api_key` and `providers[].headers`, both support
   `${secret:NAME}` expansion at **config-load time**
   (`internal/providers.ExpandSecrets`). This is different from the

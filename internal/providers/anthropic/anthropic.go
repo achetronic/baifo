@@ -24,6 +24,7 @@ const providerType = "anthropic"
 
 func init() {
 	providers.Register(providerType, build)
+	providers.RegisterAuthFlow(providerType, RunOAuthFlow)
 }
 
 func build(_ context.Context, spec providers.Spec, modelName string, opts providers.ModelOptions) (model.LLM, error) {
@@ -42,15 +43,15 @@ func build(_ context.Context, spec providers.Spec, modelName string, opts provid
 		if spec.ConfigDir == "" {
 			return nil, fmt.Errorf("anthropic: auth is set to 'oauth' but ConfigDir is empty")
 		}
-		tokenFile := tokenFilePath(spec.ConfigDir)
+		tokenFile := tokenFilePath(spec.ConfigDir, spec.Name)
 		if _, err := os.Stat(tokenFile); err == nil {
-			slog.Info("anthropic: using OAuth bearer token transport")
+			slog.Info("anthropic: using OAuth bearer token transport", "provider", spec.Name)
 			httpClient = &http.Client{
 				Transport: &OAuthTransport{TokenFile: tokenFile},
 			}
 			apiKey = "" // explicit override to prevent adk-utils-go from sending it
 		} else {
-			return nil, fmt.Errorf("anthropic: auth is set to 'oauth' but token file is missing. Run 'baifo provider auth anthropic' first")
+			return nil, fmt.Errorf("anthropic: provider %q has auth 'oauth' but no token file. Run 'baifo provider auth %s' first", spec.Name, spec.Name)
 		}
 	} else if spec.Auth != "" && spec.Auth != "api_key" {
 		return nil, fmt.Errorf("anthropic: unknown auth type %q", spec.Auth)

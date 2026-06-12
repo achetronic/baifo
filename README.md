@@ -31,6 +31,10 @@ agent the same way you do.
   back out of the results before the model (or the logs, or the audit trail) ever
   sees it. Encrypted at rest, or plaintext for a throwaway box.
 
+- **Sessions that survive.** Close the terminal mid-task and pick the conversation
+  back up tomorrow. Sessions persist locally, and you can list them and switch
+  between them without losing context.
+
 - **Tools, built in and pluggable.** Ships with filesystem access (read, write,
   edit, search, run commands) and web fetch/search. Connect external MCP tool
   servers over HTTP or stdio, with OAuth handled for you.
@@ -54,6 +58,10 @@ agent the same way you do.
 
 baifo works with OpenAI, Anthropic, Gemini, any OpenAI-compatible endpoint, and
 Ollama. Configure one or more and point each agent at whichever you want.
+
+Got a Claude subscription? Declare an `anthropic` provider with `auth: oauth`,
+log in with `baifo provider auth <name>` and use it directly, no API key needed.
+More providers will get OAuth login as their terms allow it.
 
 ## Install
 
@@ -89,6 +97,7 @@ baifo --version                print version
 baifo --config-dir <path>      point at a specific config directory
 baifo chat [--message <text>]  headless REPL, or a one-shot message with --message
 baifo server                   run the A2A server in the background
+baifo provider auth <name>     log in to a provider with OAuth (anthropic type only for now)
 baifo secrets set <NAME>       store a secret (interactive, masked)
 baifo secrets list             list names and descriptions, never values
 baifo secrets rotate <NAME>    rotate a secret
@@ -98,8 +107,9 @@ baifo secrets unset <NAME>     remove a secret
 ## Configuration
 
 baifo keeps everything in one directory: providers, agents, secrets, skills and
-runtime knobs. The first run creates it for you; edit it by hand or through the
-in-TUI slash commands. The full schema reference lives in `.agents/CONFIG.md`.
+runtime knobs. The first run creates it for you; edit it by hand, through the
+in-TUI slash commands, or with the built-in editor (syntax highlighting and
+validation included). The full schema reference lives in `.agents/CONFIG.md`.
 
 ## Contributing
 
