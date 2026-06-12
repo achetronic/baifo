@@ -32,9 +32,12 @@ USER nonroot:nonroot
 # user can mount a volume there or pass --config-dir to override.
 WORKDIR /home/nonroot
 
-# goreleaser places the cross-compiled binary at the build
-# context root before invoking `docker build`. The file name
-# matches the `binary:` field in builds[].
-COPY baifo /usr/local/bin/baifo
+# goreleaser (dockers_v2) lays out the build context with one
+# directory per target platform (linux/amd64/baifo, linux/arm64/baifo)
+# and buildx provides TARGETPLATFORM, so this single COPY picks the
+# right binary for each arch of the multi-arch manifest. The file
+# name matches the `binary:` field in builds[].
+ARG TARGETPLATFORM
+COPY $TARGETPLATFORM/baifo /usr/local/bin/baifo
 
 ENTRYPOINT ["/usr/local/bin/baifo"]

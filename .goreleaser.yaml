@@ -170,62 +170,39 @@ release:
 # tagged release. Multi-arch via a manifest list, built from the
 # already-cross-compiled binaries (so we don't need qemu).
 # ---------------------------------------------------------------------------
-dockers:
-  - id: baifo-amd64
-    goos: linux
-    goarch: amd64
-    image_templates:
-      - "ghcr.io/achetronic/baifo:{{ .Version }}-amd64"
-      - "ghcr.io/achetronic/baifo:latest-amd64"
+# Docker images. dockers_v2 drives a single `docker buildx build`
+# with both platforms: it builds and pushes the multi-arch manifest
+# (plus SBOM) in one step, so no docker_manifests section is needed.
+# On --snapshot builds goreleaser appends a platform suffix to each
+# tag and skips the manifest (buildx cannot create one without
+# pushing).
+dockers_v2:
+  - images:
+      - ghcr.io/achetronic/baifo
+    tags:
+      - "{{ .Version }}"
+      - latest
+    platforms:
+      - linux/amd64
+      - linux/arm64
     dockerfile: Dockerfile
-    use: buildx
-    build_flag_templates:
-      - "--platform=linux/amd64"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.source=https://github.com/achetronic/baifo"
-      - "--label=org.opencontainers.image.licenses=Apache-2.0"
-
-  - id: baifo-arm64
-    goos: linux
-    goarch: arm64
-    image_templates:
-      - "ghcr.io/achetronic/baifo:{{ .Version }}-arm64"
-      - "ghcr.io/achetronic/baifo:latest-arm64"
-    dockerfile: Dockerfile
-    use: buildx
-    build_flag_templates:
-      - "--platform=linux/arm64"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.source=https://github.com/achetronic/baifo"
-      - "--label=org.opencontainers.image.licenses=Apache-2.0"
-
-# Multi-arch manifest list that points at the per-arch images
-# above. Pulling `ghcr.io/achetronic/baifo:vX.Y.Z` then resolves
-# to the right arch automatically.
-docker_manifests:
-  - name_template: "ghcr.io/achetronic/baifo:{{ .Version }}"
-    image_templates:
-      - "ghcr.io/achetronic/baifo:{{ .Version }}-amd64"
-      - "ghcr.io/achetronic/baifo:{{ .Version }}-arm64"
-  - name_template: "ghcr.io/achetronic/baifo:latest"
-    image_templates:
-      - "ghcr.io/achetronic/baifo:latest-amd64"
-      - "ghcr.io/achetronic/baifo:latest-arm64"
+    labels:
+      "org.opencontainers.image.created": "{{ .Date }}"
+      "org.opencontainers.image.title": "{{ .ProjectName }}"
+      "org.opencontainers.image.revision": "{{ .FullCommit }}"
+      "org.opencontainers.image.version": "{{ .Version }}"
+      "org.opencontainers.image.source": "https://github.com/achetronic/baifo"
+      "org.opencontainers.image.licenses": "Apache-2.0"
 
 # ---------------------------------------------------------------------------
-# Homebrew tap. The formula lives in a separate repo
-# (achetronic/homebrew-baifo); goreleaser pushes the updated
-# formula on every release. Requires HOMEBREW_TAP_GITHUB_TOKEN
-# in the release workflow's environment — a PAT with `repo`
-# scope on the tap repo.
+# Homebrew tap. The cask lives in a separate repo
+# (achetronic/homebrew-baifo) under Casks/; goreleaser pushes the
+# updated cask on every release. Requires HOMEBREW_TAP_GITHUB_TOKEN
+# in the release workflow's environment, a PAT with `repo` scope on
+# the tap repo. Casks replaced formulas for pre-compiled binaries
+# (the old brews section is deprecated since goreleaser v2.10).
 # ---------------------------------------------------------------------------
-brews:
+homebrew_casks:
   - name: baifo
     repository:
       owner: achetronic
@@ -234,16 +211,20 @@ brews:
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     commit_author:
       name: baifo-release-bot
-      email: [email protected]
-    commit_msg_template: "baifo: brew formula update for {{ .Tag }}"
-    directory: Formula
+      email: "baifo-release-bot@users.noreply.github.com"
+    commit_msg_template: "baifo: brew cask update for {{ .Tag }}"
     homepage: "https://github.com/achetronic/baifo"
     description: "Single-binary, terminal-native agent harness."
-    license: "Apache-2.0"
-    install: |
-      bin.install "baifo"
-    test: |
-      assert_match "baifo version", shell_output("#{bin}/baifo --version")
-    # Skip the brew upload entirely on pre-releases — Homebrew users
-    # expect the formula to track stable versions only.
+    # The binary is not signed/notarized with Apple, so macOS would
+    # quarantine it and refuse to run ("baifo is damaged"). Strip the
+    # quarantine bit on install, as the goreleaser docs recommend for
+    # unsigned binaries.
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/baifo"]
+          end
+    # Skip the upload entirely on pre-releases. Homebrew users
+    # expect the cask to track stable versions only.
     skip_upload: auto
