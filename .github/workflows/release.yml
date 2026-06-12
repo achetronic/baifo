@@ -1,24 +1,13 @@
 # Release pipeline for baifo.
 #
-# Triggered by:
-#   - Pushing a tag matching v* (e.g. v0.1.0, v1.2.3-rc1) → full
-#     release: build artefacts, push Docker images, update the
-#     Homebrew tap, draft the GitHub release.
-#   - workflow_dispatch (manual) → useful for smoke-testing the
-#     pipeline; goreleaser detects the missing tag and runs in
-#     --snapshot mode (no publish).
+# Triggered by pushing a tag matching v* (e.g. v0.1.0).
 #
-# Required repository secrets:
-#   - HOMEBREW_TAP_GITHUB_TOKEN
-#       PAT with `repo` scope on achetronic/homebrew-baifo. Without
-#       it the brews: section in .goreleaser.yaml fails; the rest
-#       of the release still works.
-#
-# Required permissions (declared per-job below):
-#   - contents: write     → push the GitHub release
-#   - packages: write     → push images to ghcr.io
-#   - id-token: write     → reserved for future cosign keyless
-#                           signing; harmless if unused today.
+#   1. checkout with Git LFS (the nomic-embed weights live there)
+#   2. sanity-check the .weights file is the real thing and not an
+#      LFS pointer (go:embed would bake the pointer in silently and
+#      ship binaries with broken embeddings)
+#   3. make release       -> cross-compile binaries into dist/
+#   4. upload dist/* to the GitHub release for the tag
 
 name: Release
 
@@ -26,24 +15,21 @@ on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
 
 permissions:
   contents: write
-  packages: write
-  id-token: write
 
 jobs:
-  goreleaser:
+  release:
     name: Build & publish release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          # goreleaser needs the full history + tags to compute
-          # the changelog and the previous-tag link.
-          fetch-depth: 0
+          # The model weights are stored in Git LFS. Without this the
+          # checkout leaves a ~130-byte pointer file in place.
+          lfs: true
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -51,38 +37,24 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      # Multi-arch docker builds need buildx + qemu for the
-      # foreign-arch image layers (linux/arm64 from an amd64
-      # runner). goreleaser drives `docker buildx build` for us;
-      # we just have to set the daemon up.
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      # go:embed would happily bake in an LFS pointer and the build
+      # would still pass. Fail loudly instead: the quantized weights
+      # are ~132MB, so anything under 100MB means LFS didn't pull.
+      - name: Verify model weights
+        run: |
+          f=internal/embeddings/assets/nomic-embed-text.weights
+          test -f "$f" || { echo "::error::$f is missing"; exit 1; }
+          size=$(wc -c < "$f")
+          echo "weights size: $size bytes"
+          test "$size" -gt 100000000 || { echo "::error::$f is too small ($size bytes); looks like an LFS pointer"; exit 1; }
 
-      # Authenticate to GHCR before goreleaser tries to push.
-      # ${{ github.actor }} is the user who pushed the tag (or
-      # ran the workflow); GITHUB_TOKEN is enough since we asked
-      # for packages: write above.
-      - name: Log in to GHCR
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build release binaries
+        run: make release
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v7
-        with:
-          # `~> v2` means "latest v2 release"; goreleaser-action
-          # pins to v2 so a future v3 with breaking changes
-          # doesn't silently land in our pipeline.
-          version: "~> v2"
-          args: release --clean
+      - name: Upload binaries to GitHub release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Optional. When the secret is unset, the brews: step
-          # in .goreleaser.yaml errors and fails the workflow —
-          # which is what we want: a release without a brew
-          # update is a half-release.
-          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes
