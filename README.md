@@ -1,4 +1,16 @@
-# baifo
+<div align="center">
+  <img src="docs/images/header.svg" alt="baifo" width="640"/>
+</div>
+
+<div align="center">
+
+[![Release](https://img.shields.io/github/v/release/achetronic/baifo?style=flat-square&color=F2922B)](https://github.com/achetronic/baifo/releases)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/achetronic/baifo?style=flat-square&color=C98A4B)](go.mod)
+[![License](https://img.shields.io/github/license/achetronic/baifo?style=flat-square&color=7FA650)](LICENSE)
+[![Release Pipeline](https://img.shields.io/github/actions/workflow/status/achetronic/baifo/release.yml?style=flat-square&label=release%20build)](https://github.com/achetronic/baifo/actions/workflows/release.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/achetronic/baifo?style=flat-square)](https://goreportcard.com/report/github.com/achetronic/baifo)
+
+</div>
 
 A personal AI agent that lives entirely in your terminal. You talk to one agent;
 it orchestrates a crew of sub-agents to do the heavy lifting. A single binary, no
@@ -65,18 +77,22 @@ More providers will get OAuth login as their terms allow it.
 
 ## Install
 
-Grab the latest pre-built binary for your OS and architecture from the
-[Releases page](https://github.com/achetronic/baifo/releases) and drop it on your
-PATH.
-
-Or build from source (Go 1.25+):
+Download the binary for your OS and architecture from the
+[Releases page](https://github.com/achetronic/baifo/releases), then drop it on
+your PATH:
 
 ```bash
-git clone https://github.com/achetronic/baifo.git
-cd baifo
-make build
-sudo mv bin/baifo /usr/local/bin/
+# Linux x86_64
+curl -Lo baifo https://github.com/achetronic/baifo/releases/latest/download/baifo-linux-amd64
+
+# macOS Apple Silicon
+curl -Lo baifo https://github.com/achetronic/baifo/releases/latest/download/baifo-darwin-arm64
+
+chmod +x baifo
+sudo mv baifo /usr/local/bin/
 ```
+
+Binaries: `linux`, `darwin`, `windows`, each for `amd64` and `arm64`.
 
 ## Getting started
 
@@ -98,10 +114,10 @@ baifo --config-dir <path>      point at a specific config directory
 baifo chat [--message <text>]  headless REPL, or a one-shot message with --message
 baifo server                   run the A2A server in the background
 baifo provider auth <name>     log in to a provider with OAuth (anthropic type only for now)
-baifo secrets set <NAME>       store a secret (interactive, masked)
+baifo secrets set <name>       store a secret (interactive, masked)
 baifo secrets list             list names and descriptions, never values
-baifo secrets rotate <NAME>    rotate a secret
-baifo secrets unset <NAME>     remove a secret
+baifo secrets rotate <name>    rotate a secret
+baifo secrets unset <name>     remove a secret
 ```
 
 ## Configuration
