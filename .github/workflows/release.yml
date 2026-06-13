@@ -1,20 +1,46 @@
 # Release pipeline for baifo.
 #
-# Triggered by pushing a tag matching v* (e.g. v0.1.0).
+# Two ways to run it:
 #
-#   1. checkout with Git LFS (the nomic-embed weights live there)
-#   2. sanity-check the .weights file is the real thing and not an
-#      LFS pointer (go:embed would bake the pointer in silently and
-#      ship binaries with broken embeddings)
-#   3. make release       -> cross-compile binaries into dist/
-#   4. upload dist/* to the GitHub release for the tag
+#   1. Automatic — you publish a GitHub release (with its tag). The
+#      `release: published` event fires, we build from that tag's commit
+#      and upload the assets to that same release.
+#
+#   2. Manual — `workflow_dispatch` with two inputs:
+#        - version:      the semver/tag of the release to publish assets to
+#                        (must match an existing release + tag, e.g. v0.1.0).
+#        - from_master:  if false (default), checkout the `version` tag.
+#                        if true, checkout master HEAD instead, but still
+#                        publish the assets to the `version` release.
+#
+# In every case the binaries are stamped with `version` (overriding the
+# Makefile's `git describe`) so the embedded version matches the release
+# even when the code is built from master.
+#
+# Build steps (shared):
+#   - checkout with Git LFS (the nomic-embed weights live there)
+#   - sanity-check the .weights file is the real thing and not an LFS
+#     pointer (go:embed would bake the pointer in silently and ship
+#     binaries with broken embeddings)
+#   - make release VERSION=<tag>  -> cross-compile binaries into dist/
+#   - upload dist/* to the GitHub release for the tag
 
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Semver tag of the release to publish assets to (must already exist, e.g. v0.1.0)."
+        required: true
+        type: string
+      from_master:
+        description: "Build from master HEAD instead of the tag's commit (assets still published to the version's release)."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -24,9 +50,35 @@ jobs:
     name: Build & publish release
     runs-on: ubuntu-latest
     steps:
+      # Resolve, from whichever trigger fired, two things:
+      #   tag = the release/tag we publish the assets to
+      #   ref = the git ref we actually build from
+      - name: Resolve target
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            tag="${{ github.event.release.tag_name }}"
+            ref="$tag"
+          else
+            tag="${{ inputs.version }}"
+            if [ "${{ inputs.from_master }}" = "true" ]; then
+              ref="master"
+            else
+              ref="$tag"
+            fi
+          fi
+          if [ -z "$tag" ]; then
+            echo "::error::could not resolve target tag"; exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "Building ref '$ref' -> publishing to release '$tag'"
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          # Build from the resolved ref (tag commit, or master when asked).
+          ref: ${{ steps.target.outputs.ref }}
           # The model weights are stored in Git LFS. Without this the
           # checkout leaves a ~130-byte pointer file in place.
           lfs: true
@@ -48,13 +100,20 @@ jobs:
           echo "weights size: $size bytes"
           test "$size" -gt 100000000 || { echo "::error::$f is too small ($size bytes); looks like an LFS pointer"; exit 1; }
 
+      # Stamp the binary with the release tag, not `git describe` — this
+      # matters when building from master, whose describe wouldn't match
+      # the release we publish to.
       - name: Build release binaries
-        run: make release
+        run: make release VERSION="${{ steps.target.outputs.tag }}"
 
-      - name: Upload binaries to GitHub release
+      - name: Publish binaries to GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/* \
-            --title "${GITHUB_REF_NAME}" \
-            --generate-notes
+          tag="${{ steps.target.outputs.tag }}"
+          # The release normally already exists (you created it, or the
+          # release event fired). Create it on demand only as a fallback,
+          # then (re)upload the assets, replacing any with the same name.
+          gh release view "$tag" >/dev/null 2>&1 \
+            || gh release create "$tag" --title "$tag" --generate-notes
+          gh release upload "$tag" dist/* --clobber
