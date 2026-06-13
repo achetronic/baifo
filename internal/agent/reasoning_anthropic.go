@@ -94,8 +94,12 @@ func ValidReasoningAPI(s string) bool {
 // resolveAnthropicReasoningAPI picks the reasoning API for an Anthropic
 // model. An explicit, valid override always wins. Otherwise it applies
 // the heuristic: a known adaptive-gap model => adaptive; a model the
-// catalogue marks with reasoning_levels => adaptive; everything else =>
-// enabled (the classic, widely-supported default).
+// catalogue marks with reasoning_levels => adaptive; a model the
+// catalogue knows but lists without levels => enabled (genuinely
+// classic); a model the catalogue does NOT know => adaptive, because an
+// unknown ID is newer than the embedded catalogue and every new
+// Anthropic model speaks the adaptive API (the classic "enabled" form
+// gets rejected with a 400, as claude-fable-5 demonstrated).
 //
 // modelID is the bare model identifier (e.g. "claude-opus-4-8").
 func resolveAnthropicReasoningAPI(modelID, override string) string {
@@ -110,7 +114,11 @@ func resolveAnthropicReasoningAPI(modelID, override string) string {
 		}
 	}
 
-	if levels := anthropicLevels()[modelID]; len(levels) > 0 {
+	levels, known := anthropicLevels()[modelID]
+	if len(levels) > 0 {
+		return ReasoningAPIAdaptive
+	}
+	if !known {
 		return ReasoningAPIAdaptive
 	}
 

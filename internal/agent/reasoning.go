@@ -110,8 +110,13 @@ func BuildReasoningConfig(modelID, effort, apiOverride string) ReasoningConfig {
 		ThinkingBudgetTokens: budget,
 		ThinkingMode:         mode,
 		// Anthropic requires the response ceiling to exceed the
-		// thinking budget; give the final answer room on top of it.
-		MaxOutputTokens: budget + 4096,
+		// thinking budget. The headroom on top of the budget is all the
+		// room the final answer AND any tool call arguments get; it must
+		// absorb a large tool call (a write_file carrying a whole file),
+		// or the stream cuts at max_tokens mid-JSON and the SDK fails
+		// accumulating the truncated tool input ("unexpected end of
+		// JSON input").
+		MaxOutputTokens: budget + 16384,
 	}
 
 	return rc

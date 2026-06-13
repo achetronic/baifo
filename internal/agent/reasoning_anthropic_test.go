@@ -104,9 +104,11 @@ func TestResolveAnthropicReasoningAPI_LevelledModels(t *testing.T) {
 	}
 }
 
-// An unknown model with no signal at all defaults to the safe classic API.
+// An unknown model (absent from the embedded catalogue) defaults to
+// adaptive: unknown means newer than the catalogue, and every new
+// Anthropic model rejects the classic "enabled" form with a 400.
 func TestResolveAnthropicReasoningAPI_Unknown(t *testing.T) {
-	if got := resolveAnthropicReasoningAPI("claude-future-99", ""); got != ReasoningAPIEnabled {
-		t.Errorf("unknown model: got %q, want enabled", got)
+	if got := resolveAnthropicReasoningAPI("claude-future-99", ""); got != ReasoningAPIAdaptive {
+		t.Errorf("unknown model: got %q, want adaptive", got)
 	}
 }
