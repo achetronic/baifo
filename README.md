@@ -16,6 +16,9 @@ A personal AI agent that lives entirely in your terminal. You talk to one agent;
 it orchestrates a crew of sub-agents to do the heavy lifting. A single binary, no
 daemon to babysit, no web UI, no external services to wire up.
 
+> [!WARNING]
+> This project is in active development and built with love. Expect rough edges, and please report any bugs by opening an issue.
+
 ## What it is
 
 baifo is a terminal-first, single-user, local assistant. You launch it, land in a
