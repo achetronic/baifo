@@ -410,11 +410,11 @@ func (m wizardModel) View() tea.View {
 	if hint != "" {
 		parts = append(parts, hintStyle.Render(hint))
 	}
-	// Persistent docs pointer: a thin separator plus a dim italic hint,
-	// so it reads as a quiet footnote rather than competing with the
-	// step's content or the frame.
-	docsStyle := lipgloss.NewStyle().Foreground(wizardFaint).Italic(true).MarginTop(1)
-	parts = append(parts, docsStyle.Render("full setup guide: "+docsURL))
+	// Persistent docs pointer: faint + italic so it reads as the quietest
+	// possible footnote (a terminal can't shrink the glyphs, so "smaller"
+	// means dimmer and shorter).
+	docsStyle := lipgloss.NewStyle().Foreground(wizardFaint).Faint(true).Italic(true).MarginTop(1)
+	parts = append(parts, docsStyle.Render(docsURL))
 
 	content := lipgloss.JoinVertical(lipgloss.Center, parts...)
 	box := lipgloss.NewStyle().
