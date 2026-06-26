@@ -126,6 +126,18 @@ var glyphs = map[string]glyphSet{
 	"warn":        {nerd: "", ascii: "!"},
 }
 
+// Footer keycaps are ALWAYS ASCII, on purpose — they never consult the
+// nerd_fonts flag. Symbols like ⏎ (U+23CE) and ↹ (U+21B9) are generic
+// Unicode, not Nerd Font glyphs, and the default console fonts on
+// Windows (Consolas, Lucida Console) lack them, so they render as tofu
+// boxes (this was issue #1: the "resume" shortcut in /session). Plain
+// words read on every terminal regardless of the user's font.
+const (
+	keyNav   = "up/dn" // ↑/↓ selection / scroll
+	keyEnter = "enter" // ⏎ primary action
+	keyTab   = "tab"   // ↹ completion
+)
+
 // Theme: the single object every component receives
 
 // Theme is the runtime view of the palette + glyph configuration. The

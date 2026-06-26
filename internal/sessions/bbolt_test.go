@@ -5,6 +5,7 @@ package sessions
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -216,5 +217,68 @@ func TestStateDeltaSurvivesReopen(t *testing.T) {
 
 	if _, err := got.Session.State().Get("temp:scratch"); err == nil {
 		t.Error("temp: key must not be persisted, but it was")
+	}
+}
+
+// TestSetTitleMissingSession guards issue #4: renaming a session that
+// does not exist must report ErrSessionNotFound rather than silently
+// succeeding.
+func TestSetTitleMissingSession(t *testing.T) {
+	svc, _ := newSvc(t)
+	ctx := context.Background()
+
+	err := svc.SetTitle(ctx, "a", "u", "ghost", "new title")
+	if !errors.Is(err, ErrSessionNotFound) {
+		t.Fatalf("SetTitle on missing session: got %v, want ErrSessionNotFound", err)
+	}
+}
+
+// TestSetTitleExistingSession confirms the happy path still returns nil
+// and actually updates the title.
+func TestSetTitleExistingSession(t *testing.T) {
+	svc, _ := newSvc(t)
+	ctx := context.Background()
+
+	if _, err := svc.Create(ctx, &session.CreateRequest{AppName: "a", UserID: "u", SessionID: "s"}); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	if err := svc.SetTitle(ctx, "a", "u", "s", "renamed"); err != nil {
+		t.Fatalf("SetTitle: %v", err)
+	}
+	entry, ok, err := svc.GetIndexEntry(ctx, "a", "u", "s")
+	if err != nil || !ok {
+		t.Fatalf("GetIndexEntry: ok=%v err=%v", ok, err)
+	}
+	if entry.Title != "renamed" {
+		t.Errorf("title: got %q, want renamed", entry.Title)
+	}
+}
+
+// TestDeleteMissingSession guards issue #4: deleting a session that does
+// not exist must report ErrSessionNotFound rather than a false success.
+func TestDeleteMissingSession(t *testing.T) {
+	svc, _ := newSvc(t)
+	ctx := context.Background()
+
+	err := svc.Delete(ctx, &session.DeleteRequest{AppName: "a", UserID: "u", SessionID: "ghost"})
+	if !errors.Is(err, ErrSessionNotFound) {
+		t.Fatalf("Delete on missing session: got %v, want ErrSessionNotFound", err)
+	}
+}
+
+// TestDeleteExistingSession confirms the happy path still removes the
+// session and returns nil.
+func TestDeleteExistingSession(t *testing.T) {
+	svc, _ := newSvc(t)
+	ctx := context.Background()
+
+	if _, err := svc.Create(ctx, &session.CreateRequest{AppName: "a", UserID: "u", SessionID: "s"}); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	if err := svc.Delete(ctx, &session.DeleteRequest{AppName: "a", UserID: "u", SessionID: "s"}); err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+	if _, ok, err := svc.GetIndexEntry(ctx, "a", "u", "s"); err != nil || ok {
+		t.Fatalf("after delete: ok=%v err=%v, want ok=false", ok, err)
 	}
 }

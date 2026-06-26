@@ -99,14 +99,21 @@ func (m Model) handleSessionsOverlayKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	case "r", "R":
-		// Rename UX is not wired into the overlay yet — surface
-		// the CLI equivalent so the key isn't silently swallowed.
-		m.messages = append(m.messages, Message{
-			Kind: MessageSystem,
-			Time: time.Now(),
-			Text: "rename via /session rename <id> <new title>",
-		})
-		m.chat.SetMessages(m.messages)
+		// Open the embedded editor pre-filled with the current
+		// title; on save it goes through editorKindSessionRename and
+		// calls Facade.RenameSession. The overlay closes first so
+		// the editor takes over cleanly (issue #2: the key used to
+		// just print the CLI equivalent into the chat).
+		if m.sessionsSel < len(m.sessions) {
+			sess := m.sessions[m.sessionsSel]
+			m.sessionsOpen = false
+			return m.openEmbeddedEditor(openEditorRequest{
+				Title:           "Rename session",
+				InitialValue:    sess.Title,
+				Kind:            editorKindSessionRename,
+				SessionTargetID: sess.ID,
+			})
+		}
 		return m, nil
 	}
 	return m, nil

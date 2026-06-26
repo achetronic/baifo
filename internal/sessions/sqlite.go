@@ -20,6 +20,12 @@ import (
 	"github.com/achetronic/baifo/internal/storage"
 )
 
+// ErrSessionNotFound is returned by mutating operations (SetTitle,
+// Delete) when the targeted session does not exist, so callers can
+// distinguish "nothing matched" from a successful no-op instead of
+// reporting a false success. See issue #4.
+var ErrSessionNotFound = errors.New("session not found")
+
 // Service is the SQLite-backed implementation of session.Service.
 // Construct with New, hand the result to a runner.Config.
 type Service struct {
@@ -47,12 +53,21 @@ func New(db *storage.DB) (*Service, error) {
 }
 
 // SetTitle updates the title of an existing session in the index.
+// Returns ErrSessionNotFound when no row matches, so renaming a
+// missing session surfaces an error instead of a silent success.
 func (s *Service) SetTitle(ctx context.Context, appName, userID, sessionID, title string) error {
-	_, err := s.db.SQL().ExecContext(ctx, `
+	res, err := s.db.SQL().ExecContext(ctx, `
 		UPDATE sessions SET title = ? WHERE app_name = ? AND user_id = ? AND session_id = ?;
 	`, title, appName, userID, sessionID)
 	if err != nil {
 		return fmt.Errorf("set title: %w", err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("set title rows affected: %w", err)
+	}
+	if n == 0 {
+		return ErrSessionNotFound
 	}
 	return nil
 }
@@ -272,9 +287,16 @@ func (s *Service) Delete(ctx context.Context, req *session.DeleteRequest) error 
 	}
 	defer tx.Rollback()
 
-	_, err = tx.ExecContext(ctx, "DELETE FROM sessions WHERE app_name = ? AND user_id = ? AND session_id = ?;", req.AppName, req.UserID, req.SessionID)
+	res, err := tx.ExecContext(ctx, "DELETE FROM sessions WHERE app_name = ? AND user_id = ? AND session_id = ?;", req.AppName, req.UserID, req.SessionID)
 	if err != nil {
 		return fmt.Errorf("delete session row: %w", err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("delete session rows affected: %w", err)
+	}
+	if n == 0 {
+		return ErrSessionNotFound
 	}
 
 	_, err = tx.ExecContext(ctx, "DELETE FROM session_events WHERE app_name = ? AND user_id = ? AND session_id = ?;", req.AppName, req.UserID, req.SessionID)

@@ -211,7 +211,7 @@ func renderPalette(theme Theme, st paletteState, availableWidth int) string {
 // plus the two keys that matter. Dim on the popup background so it
 // reads as chrome, not content.
 func renderPaletteFooter(theme Theme, st paletteState, width int) string {
-	hint := "↹ complete · ⏎ send · ↑↓"
+	hint := keyTab + " complete · " + keyEnter + " send · " + keyNav
 	if len(st.Items) > paletteMaxRows {
 		hint = fmt.Sprintf("%d/%d · %s", st.Selected+1, len(st.Items), hint)
 	}
@@ -306,11 +306,11 @@ func renderPaletteRow(theme Theme, item paletteItem, query string, selected bool
 	if !strings.HasPrefix(item.DisplayName, "/") {
 		nameStyle = lipgloss.NewStyle().Foreground(colorTextDim).Background(bg)
 	} else {
-		if item.IsView {
-			nameStyle = lipgloss.NewStyle().Foreground(theme.Accent.Primary).Bold(true).Background(bg)
-		} else {
-			nameStyle = lipgloss.NewStyle().Foreground(colorInfo).Bold(true).Background(bg)
-		}
+		// Every slash command is painted with the same accent so the
+		// popup reads as one coherent list. (There used to be a
+		// special case painting /help and /root with a brighter tone,
+		// which clashed with the rest — see issue #5.)
+		nameStyle = lipgloss.NewStyle().Foreground(colorInfo).Bold(true).Background(bg)
 	}
 	summaryStyle := lipgloss.NewStyle().Foreground(colorTextDim).Background(bg)
 	gapStyle := lipgloss.NewStyle().Background(bg)

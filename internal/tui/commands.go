@@ -137,11 +137,18 @@ type openEditorRequest struct {
 	//                              and call Facade.AddFact.
 	//   editorKindFactUpdate     → parse the same doc and call
 	//                              Facade.UpdateFact on FactTargetID.
+	//   editorKindSessionRename  → take the buffer as the new session
+	//                              title and call Facade.RenameSession
+	//                              on SessionTargetID.
 	Kind editorKind
 
 	// FactTargetID is the fact ID to update when Kind is
 	// editorKindFactUpdate. Ignored otherwise.
 	FactTargetID uint64
+
+	// SessionTargetID is the session ID to rename when Kind is
+	// editorKindSessionRename. Ignored otherwise.
+	SessionTargetID string
 }
 
 // editorKind enumerates the save-time strategies the embedded editor
@@ -164,6 +171,7 @@ const (
 	editorKindProviderUpsert
 	editorKindFactUpsert
 	editorKindFactUpdate
+	editorKindSessionRename
 )
 
 // handleSlashCommand parses the given line and executes the command,

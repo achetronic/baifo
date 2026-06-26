@@ -138,6 +138,10 @@ type Model struct {
 	// editorOnSaveKind is editorKindFactUpdate. Zero otherwise.
 	editorFactTargetID uint64
 
+	// editorSessionTargetID is the session ID to rename when
+	// editorOnSaveKind is editorKindSessionRename. Empty otherwise.
+	editorSessionTargetID string
+
 	workersSel int
 
 	// workersConfirmKill is the worker_id pending a kill confirmation.

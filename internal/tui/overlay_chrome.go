@@ -539,7 +539,7 @@ func renderList(theme Theme, items []listItem, selected int, emptyHint string, m
 	if maxRows > 0 {
 		if overflow {
 			indicator := theme.FaintText().Italic(true).
-				Render(fmt.Sprintf("  %d / %d · ↑/↓ scroll", selected+1, len(items)))
+				Render(fmt.Sprintf("  %d / %d · %s scroll", selected+1, len(items), keyNav))
 			rendered += "\n" + indicator
 			rowsWritten++
 		}

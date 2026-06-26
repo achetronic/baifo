@@ -288,7 +288,6 @@ func paletteSuggest(line string) (visible bool, matches []paletteItem, replaceLe
 				Summary: n.Summary,
 				Usage:   n.Usage,
 				IsLeaf:  len(n.Children) == 0,
-				IsView:  isView(n.Name),
 				// At depth 0 the displayed name is "/name"; deeper
 				// in the tree it's just "name" because the chain
 				// up to it is already in the composer.
@@ -362,22 +361,4 @@ type paletteItem struct {
 	// whether to append a trailing space (more verbs to type) or
 	// not (the next thing is free-form).
 	IsLeaf bool
-
-	// IsView is true when the command is classified as a view rather
-	// than a setting/command/shortcut.
-	IsView bool
-}
-
-// isView reports whether a top-level command is a "view": a command
-// that, on its own with no sub-verb, transitions the UI directly
-// (switches a panel or toggles an overlay). Only /help and /root
-// qualify — everything else, including /session and /worker, is a
-// metacommand whose bare form just prints a usage line; the actual
-// overlay opens via a sub-verb (`/session list`, `/worker list`).
-func isView(name string) bool {
-	switch name {
-	case "help", "root":
-		return true
-	}
-	return false
 }

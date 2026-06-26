@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	tea "charm.land/bubbletea/v2"
@@ -73,6 +74,13 @@ func (m Model) openEmbeddedEditor(req openEditorRequest) (tea.Model, tea.Cmd) {
 		validator = func(buf string) []error {
 			return overlays.ValidateFactYAML(buf)
 		}
+	case editorKindSessionRename:
+		validator = func(buf string) []error {
+			if strings.TrimSpace(buf) == "" {
+				return []error{errors.New("title cannot be empty")}
+			}
+			return nil
+		}
 	default:
 		validator = func(string) []error { return nil }
 	}
@@ -122,6 +130,7 @@ func (m Model) openEmbeddedEditor(req openEditorRequest) (tea.Model, tea.Cmd) {
 	m.editorOnSavePath = req.SavePath
 	m.editorOnSaveKind = req.Kind
 	m.editorFactTargetID = req.FactTargetID
+	m.editorSessionTargetID = req.SessionTargetID
 	return m, nil
 }
 
@@ -140,9 +149,17 @@ func (m Model) updateWithEditor(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleEditorSave(msg.Value)
 
 	case editor.CancelMsg:
+		kind := m.editorOnSaveKind
 		m.editor = nil
 		m.editorOnSavePath = ""
 		m.editorOnSaveKind = editorKindRawFile
+		m.editorSessionTargetID = ""
+		if kind == editorKindSessionRename {
+			// Rename was cancelled from the sessions overlay; pop the
+			// user back into it instead of dumping them in the chat.
+			m.sessionsOpen = true
+			return m, nil
+		}
 		m.messages = append(m.messages, Message{
 			Kind: MessageSystem,
 			Time: time.Now(),
@@ -164,9 +181,11 @@ func (m Model) updateWithEditor(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) handleEditorSave(value string) (tea.Model, tea.Cmd) {
 	kind := m.editorOnSaveKind
 	path := m.editorOnSavePath
+	sessionID := m.editorSessionTargetID
 	m.editor = nil
 	m.editorOnSavePath = ""
 	m.editorOnSaveKind = editorKindRawFile
+	m.editorSessionTargetID = ""
 
 	switch kind {
 	case editorKindMCPUpsert:
@@ -352,6 +371,43 @@ func (m Model) handleEditorSave(value string) (tea.Model, tea.Cmd) {
 		}
 		m.chat.SetMessages(m.messages)
 		return m, nil
+
+	case editorKindSessionRename:
+		if m.facade == nil {
+			m.messages = append(m.messages, Message{
+				Kind: MessageError,
+				Time: time.Now(),
+				Text: "no facade available; session not renamed",
+			})
+			m.chat.SetMessages(m.messages)
+			return m, nil
+		}
+		title := strings.TrimSpace(value)
+		if err := m.facade.RenameSession(context.Background(), sessionID, title); err != nil {
+			m.messages = append(m.messages, Message{
+				Kind: MessageError,
+				Time: time.Now(),
+				Text: fmt.Sprintf("rename session: %v", err),
+			})
+			m.chat.SetMessages(m.messages)
+			return m, nil
+		}
+		// Refresh the backing list so the overlay shows the new
+		// title, then pop the user back into the sessions overlay.
+		if list, err := m.facade.ListSessions(context.Background()); err == nil {
+			m.sessions = list
+			if m.sessionsSel >= len(list) && m.sessionsSel > 0 {
+				m.sessionsSel = len(list) - 1
+			}
+		}
+		m.messages = append(m.messages, Message{
+			Kind: MessageSystem,
+			Time: time.Now(),
+			Text: fmt.Sprintf("renamed session to %q", title),
+		})
+		m.chat.SetMessages(m.messages)
+		m.sessionsOpen = true
+		return m, nil
 	}
 
 	// Default: write raw to path.
@@ -392,6 +448,10 @@ func (m Model) handleEditorSave(value string) (tea.Model, tea.Cmd) {
 func stylerFor(kind editorKind, initial string) editor.LineStyler {
 	if kind == editorKindSkillUpsert {
 		return overlays.SkillLineStyler(initial, canariasYAMLTheme(), canariasMDTheme())
+	}
+	if kind == editorKindSessionRename {
+		// A session title is plain text, not YAML — no highlighting.
+		return nil
 	}
 	return yamlhl.New(canariasYAMLTheme())
 }
