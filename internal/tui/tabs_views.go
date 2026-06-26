@@ -45,7 +45,7 @@ func renderWorkers(theme Theme, workers []facade.WorkerInfo, selected int, confi
 		"no workers running\n\nspawn one via the chat — \"crea un worker que...\"",
 		listOverlayMinRows, listOverlayContentWidth)
 
-	footer := keyNav + " select · " + keyEnter + " open worker chat · k kill · c collect · esc close"
+	footer := keyNav + " select · " + keyEnter + " open worker chat · [k] kill · [c] collect · [esc] close"
 	confirm := ""
 	switch {
 	case confirmKillID != "":
@@ -127,7 +127,7 @@ func renderSessions(theme Theme, sessions []facade.SessionInfo, activeID string,
 	content := renderList(theme, items, selected, "no sessions stored yet\n\npress n to start one",
 		listOverlayMinRows, listOverlayContentWidth)
 
-	footer := keyNav + " select · " + keyEnter + " resume · n new · d delete · r rename · esc close"
+	footer := keyNav + " select · " + keyEnter + " resume · [n] new · [d] delete · [r] rename · [esc] close"
 	confirm := ""
 	if confirmDeleteID != "" {
 		confirm = "delete session " + confirmDeleteID + "? this cannot be undone (y/N)"
@@ -184,7 +184,7 @@ func renderFacts(theme Theme, facts []facade.FactDetail, selected int, confirmDe
 		"no facts stored yet\n\npress n to add one — or just tell the agent something worth remembering",
 		listOverlayMinRows, listOverlayContentWidth)
 
-	footer := keyNav + " select · " + keyEnter + " edit · n new · d delete · esc close"
+	footer := keyNav + " select · " + keyEnter + " edit · [n] new · [d] delete · [esc] close"
 	confirm := ""
 	if confirmDeleteID != 0 {
 		confirm = fmt.Sprintf("delete fact #%d? this cannot be undone (y/N)", confirmDeleteID)

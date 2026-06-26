@@ -133,9 +133,9 @@ var glyphs = map[string]glyphSet{
 // boxes (this was issue #1: the "resume" shortcut in /session). Plain
 // words read on every terminal regardless of the user's font.
 const (
-	keyNav   = "up/dn" // ↑/↓ selection / scroll
-	keyEnter = "enter" // ⏎ primary action
-	keyTab   = "tab"   // ↹ completion
+	keyNav   = "[up/dn]" // ↑/↓ selection / scroll
+	keyEnter = "[enter]" // ⏎ primary action
+	keyTab   = "[tab]"   // ↹ completion
 )
 
 // Theme: the single object every component receives

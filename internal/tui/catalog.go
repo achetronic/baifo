@@ -54,8 +54,8 @@ type catalogView struct {
 // an editor get an Enter→edit hint, secrets (whose values are never
 // shown) get a browse-only footer.
 const (
-	catalogEditFooter   = keyNav + " select · " + keyEnter + " edit · esc close"
-	catalogBrowseFooter = keyNav + " select · esc close"
+	catalogEditFooter   = keyNav + " select · " + keyEnter + " edit · [esc] close"
+	catalogBrowseFooter = keyNav + " select · [esc] close"
 )
 
 // buildAgentCatalog renders the static-agent templates. The root and

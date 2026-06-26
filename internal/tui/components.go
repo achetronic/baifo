@@ -699,7 +699,7 @@ func renderHelp(theme Theme, back string, width, height int) string {
 	return renderModal(theme, overlayOpts{
 		Title:   "Help",
 		Content: b.String(),
-		Footer:  "esc close",
+		Footer:  "[esc] close",
 	}, back, width, height)
 }
 
