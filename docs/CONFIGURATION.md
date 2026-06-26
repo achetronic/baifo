@@ -8,12 +8,14 @@ baifo stores all of its configuration in a single directory. Three YAML files co
 
 ### First-run wizard
 
-When you launch `baifo` for the first time and no configuration directory exists, it shows a Yes/No wizard offering to create one. If you accept, it creates:
+When you launch `baifo` for the first time and no configuration directory exists, a wizard walks you through creating one. It first confirms the directory, then offers to set up one LLM provider (type, authentication, API key or OAuth, and model) so you land in a working chat instead of a degraded boot. You can skip the provider step and configure it later. The wizard creates:
 
-- `baifo.yaml` (global settings, fully populated with defaults and inline comments)
-- `agents.yaml` (a root agent and a utility agent, both ready except for the model choice)
-- `secrets.yaml` (empty secret store)
+- `baifo.yaml` (global settings, fully populated with defaults and inline comments; the provider you chose, if any, is filled in)
+- `agents.yaml` (a single root agent; its model is set from the wizard, or left blank if you skipped)
+- `secrets.yaml` (your API key is stored here when you provide one; otherwise an empty store)
 - `data/` (the SQLite database goes here)
+
+If you pick an OAuth provider, the wizard finishes by printing the exact `baifo provider auth <name>` command to run before starting baifo.
 
 Existing files are never overwritten. If you later add a file that the wizard skipped, baifo picks it up on the next boot.
 
@@ -349,9 +351,11 @@ agents:
     allowed_secrets: []
 ```
 
-### The utility agent
+### The utility agent (optional)
 
-At most one entry may set `utility: true`. The utility agent handles baifo's internal chores: session titling and context-guard compaction summaries. It never chats and gets no tools. Only its `llm` block is read. Point it at the cheapest, fastest model you have. If `provider` and `model` are left empty, chores fall back to the root's model (which works but spends expensive tokens on trivial work).
+baifo runs small internal chores in the background: naming sessions and writing context-guard compaction summaries. By default there is no separate utility agent, so these chores use the root agent's model. That works, but it spends your expensive model on trivial work.
+
+To save tokens, add one agent with `utility: true` pointing at the cheapest, fastest model you have. It never chats and gets no tools; only its `llm` block is read. At most one entry may set `utility: true`. If its `provider` and `model` are left empty, the chores fall back to the root's model.
 
 ```yaml
 - utility: true
@@ -359,11 +363,9 @@ At most one entry may set `utility: true`. The utility agent handles baifo's int
   description: Cheap model for internal chores (titles, compaction).
   prompt: You are an internal utility agent.
   llm:
-    provider: ""
-    model: ""
+    provider: anthropic
+    model: claude-haiku-4-5-20251001
 ```
-
-An agent cannot be both `root: true` and `utility: true`.
 
 ### The `llm` block
 
@@ -488,7 +490,7 @@ The `references/`, `assets/`, and `scripts/` subdirectories are optional and exp
 
 ## Full reference
 
-The two complete annotated files below mirror the scaffold that the first-run wizard writes. Every field the loader understands is shown. Use them as a copy-paste starting point.
+The two complete annotated files below show every field the loader understands; use them as a copy-paste starting point. The first-run wizard writes a subset: the `baifo.yaml` is reproduced as-is (minus any provider you configure), and in `agents.yaml` it writes only the root agent. The optional `utility` entry shown below is **not** created by the wizard — add it yourself to route internal chores to a cheaper model.
 
 ### `baifo.yaml`
 
@@ -688,14 +690,16 @@ agents:
       max_tokens: 0 # 0 = auto-detect from model window
       max_turns: 0 # 0 = strategy default
 
-  # Utility agent: cheap model for internal chores (session titling,
-  # compaction summaries). Never chats, gets no tools. Only llm is read.
-  # Empty provider/model = fall back to root's model.
+  # Utility agent (OPTIONAL, not written by the wizard): a cheap model
+  # for internal chores (session titling, compaction summaries). Never
+  # chats, gets no tools, only llm is read. Omit this entry entirely and
+  # those chores use the root's model. Point it at a cheap model to save
+  # tokens.
   - utility: true
     name: utility
     description: Cheap model for internal chores (titles, compaction).
     prompt: You are an internal utility agent.
     llm:
-      provider: ""
-      model: ""
+      provider: anthropic
+      model: claude-haiku-4-5-20251001
 ```
