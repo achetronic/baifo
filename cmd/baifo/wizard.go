@@ -377,6 +377,10 @@ var (
 	wizardClay   = lipgloss.Color("#5E3119")
 )
 
+// docsURL points users at the full configuration guide. Shown on every
+// wizard screen so a lost user always has somewhere to go.
+const docsURL = "https://github.com/achetronic/baifo/blob/master/docs/CONFIGURATION.md"
+
 func (m wizardModel) View() tea.View {
 	if m.width == 0 {
 		return tea.NewView("")
@@ -405,6 +409,8 @@ func (m wizardModel) View() tea.View {
 	if hint != "" {
 		parts = append(parts, hintStyle.Render(hint))
 	}
+	// Persistent docs pointer, dim so it reads as chrome, not content.
+	parts = append(parts, lipgloss.NewStyle().Foreground(wizardClay).MarginTop(1).Render("Docs: "+docsURL))
 
 	content := lipgloss.JoinVertical(lipgloss.Center, parts...)
 	box := lipgloss.NewStyle().
