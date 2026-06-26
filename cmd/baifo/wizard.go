@@ -375,6 +375,7 @@ var (
 	wizardAccent = lipgloss.Color("#F2922B")
 	wizardText   = lipgloss.Color("#E8DDCB")
 	wizardClay   = lipgloss.Color("#5E3119")
+	wizardFaint  = lipgloss.Color("#8A7560") // muted taupe for secondary chrome
 )
 
 // docsURL points users at the full configuration guide. Shown on every
@@ -409,8 +410,11 @@ func (m wizardModel) View() tea.View {
 	if hint != "" {
 		parts = append(parts, hintStyle.Render(hint))
 	}
-	// Persistent docs pointer, dim so it reads as chrome, not content.
-	parts = append(parts, lipgloss.NewStyle().Foreground(wizardClay).MarginTop(1).Render("Docs: "+docsURL))
+	// Persistent docs pointer: a thin separator plus a dim italic hint,
+	// so it reads as a quiet footnote rather than competing with the
+	// step's content or the frame.
+	docsStyle := lipgloss.NewStyle().Foreground(wizardFaint).Italic(true).MarginTop(1)
+	parts = append(parts, docsStyle.Render("full setup guide: "+docsURL))
 
 	content := lipgloss.JoinVertical(lipgloss.Center, parts...)
 	box := lipgloss.NewStyle().
