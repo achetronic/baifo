@@ -84,11 +84,21 @@ func run(args []string) exitCode {
 			fmt.Fprintf(os.Stderr, "baifo: %v\n", err)
 			return exitError
 		}
-		dir, err = runFirstRunWizard(*configDirFlag)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "baifo: %v\n", err)
+		res, werr := runFirstRunWizard(*configDirFlag)
+		if werr != nil {
+			fmt.Fprintf(os.Stderr, "baifo: %v\n", werr)
 			return exitError
 		}
+		if !res.launchTUI {
+			// OAuth provider: there are no usable credentials until the
+			// user logs in, so print the exact command and exit instead
+			// of dropping them into a degraded TUI.
+			fmt.Printf("\nProvider %q is set up to use OAuth.\n"+
+				"Log in once, then start baifo:\n\n"+
+				"    baifo provider auth %s\n\n", res.oauthName, res.oauthName)
+			return exitOK
+		}
+		dir = res.dir
 	}
 
 	return runTUI(dir)

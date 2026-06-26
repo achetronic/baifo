@@ -195,7 +195,7 @@ mcps:
 `
 
 // defaultAgentsYAML is the agents.yaml written on first run. It seeds a
-// complete root agent minus the model choice.
+// single root agent (the coordinator), complete except for the model.
 const defaultAgentsYAML = `version: 1
 
 # Exactly one entry must set 'root: true': the agent you talk to in
@@ -206,6 +206,11 @@ const defaultAgentsYAML = `version: 1
 
 agents:
   - root: true
+    # utility: false        # baifo uses a cheap model for internal chores
+                            # (session titles, context compaction). With no
+                            # agent flagged 'utility: true' those chores use
+                            # the root's model. See the repo docs to add a
+                            # dedicated cheap utility agent and save tokens.
     name: coordinator
     description: Multidisciplinary local assistant.
     # Pick a provider declared in baifo.yaml and a model it offers.
@@ -282,21 +287,6 @@ agents:
       strategy: threshold
       max_tokens: 0            # 0 = auto-detect from the model's window
       max_turns: 0             # 0 = strategy default
-
-  # The utility agent: a cheap model for baifo's internal chores
-  # (naming sessions, summarising conversations when the context
-  # window fills up). It never chats and gets no tools, only its
-  # llm block is used. Point it at the cheapest/fastest model you
-  # have; leaving provider/model empty makes those chores fall back
-  # to the root's model (which works, but burns expensive tokens on
-  # trivial work).
-  - utility: true
-    name: utility
-    description: Cheap model for internal chores (titles, compaction).
-    prompt: You are an internal utility agent.
-    llm:
-      provider: ""
-      model: ""
 `
 
 // defaultSecretsYAML is the secrets.yaml written on first run.
