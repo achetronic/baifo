@@ -1,5 +1,5 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-FileCopyrightText: 2026 Alby Hernández <hola@achetronic.com>
+// SPDX-License-Identifier: Apache-2.0
 
 // Package workers owns the lifecycle of every sub-agent spawned by the
 // root. See .agents/WORKER_RUNTIME.md and decision #5 for the design.

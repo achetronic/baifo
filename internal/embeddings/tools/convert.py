@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Alby Hernández <hola@achetronic.com>
+# SPDX-License-Identifier: Apache-2.0
+
 # Converts nomic-embed-text-v1.5 safetensors (f32) into baifo's compact
 # int8 weight blob. Per-row symmetric quantization (cos>0.998 vs f32).
 import struct, json, sys
