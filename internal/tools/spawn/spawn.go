@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package spawn registers the spawn / supervise tools the root agent
 // uses to manage workers. See .agents/WORKER_RUNTIME.md for the

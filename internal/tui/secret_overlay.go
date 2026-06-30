@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 package tui
 

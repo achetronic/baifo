@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package installer downloads and extracts skill packages distributed
 // as .zip or .tar.gz archives. The result must validate against ADK's

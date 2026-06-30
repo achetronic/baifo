@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package watcher emits debounced events when files under the active
 // .baifo/ directory change. The App subscribes once at boot, registers

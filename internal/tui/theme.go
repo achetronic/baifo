@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package tui implements baifo's terminal UI on top of charmbracelet's
 // BubbleTea v2 stack. The single source of truth for visual decisions

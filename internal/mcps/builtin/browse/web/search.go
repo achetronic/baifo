@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package web is the low-level HTTP primitive used by the built-in
 // browse MCP. It is a verbatim copy (modulo the package path) of

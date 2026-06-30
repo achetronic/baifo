@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 // Package config loads and resolves the on-disk configuration of baifo.
 // See .agents/AGENTS.md and .agents/CONFIG.md for the full reference.

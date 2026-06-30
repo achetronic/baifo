@@ -1,5 +1,4 @@
-// Copyright 2026 The baifo Authors.
-// Licensed under the Apache License, Version 2.0; see LICENSE.
+// SPDX-License-Identifier: Apache-2.0
 
 // This file implements the context-trim BeforeModel plugin, wired via
 // guardrails.trim_oversized_user_text in baifo.yaml.
