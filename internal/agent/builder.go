@@ -1,3 +1,4 @@
+// Copyright 2025 - Alby Hernández and the baifo contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // Package agent builds ADK agents from baifo's high-level Spec.

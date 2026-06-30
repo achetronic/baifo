@@ -1,3 +1,4 @@
+// Copyright 2025 - Alby Hernández and the baifo contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // Package server hosts the HTTP daemon that exposes baifo's agents

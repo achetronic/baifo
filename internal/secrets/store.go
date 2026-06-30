@@ -1,3 +1,4 @@
+// Copyright 2025 - Alby Hernández and the baifo contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // Package secrets implements the encrypted-at-rest secret store described

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright 2025 - Alby Hernández and the baifo contributors
 # SPDX-License-Identifier: Apache-2.0
 
 # Converts nomic-embed-text-v1.5 safetensors (f32) into baifo's compact
