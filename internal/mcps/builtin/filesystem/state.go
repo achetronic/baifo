@@ -176,12 +176,12 @@ func (ps *processStore) Start(command, workdir string, env []string) (string, er
 	id := fmt.Sprintf("proc_%d", ps.counter)
 	ps.mu.Unlock()
 
-	cmd := exec.Command("sh", "-c", command)
+	cmd := shellCommand(command)
 	if workdir != "" {
 		cmd.Dir = workdir
 	}
 	if len(env) > 0 {
-		cmd.Env = env
+		cmd.Env = append(os.Environ(), env...)
 	}
 	stdoutBuf, stderrBuf := &safeBuffer{}, &safeBuffer{}
 	cmd.Stdout = stdoutBuf
@@ -220,12 +220,12 @@ func (ps *processStore) Start(command, workdir string, env []string) (string, er
 
 // Exec runs a command in the foreground with a hard timeout.
 func (ps *processStore) Exec(command, workdir string, env []string, timeout time.Duration) (stdout, stderr string, exitCode int, err error) {
-	cmd := exec.Command("sh", "-c", command)
+	cmd := shellCommand(command)
 	if workdir != "" {
 		cmd.Dir = workdir
 	}
 	if len(env) > 0 {
-		cmd.Env = env
+		cmd.Env = append(os.Environ(), env...)
 	}
 	stdoutBuf, stderrBuf := &safeBuffer{}, &safeBuffer{}
 	cmd.Stdout = stdoutBuf

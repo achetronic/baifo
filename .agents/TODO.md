@@ -64,3 +64,12 @@ Open work only. Each item is confirmed missing in the code right now.
 
 - `baifo secrets rekey` to rotate the encryption key in place. No CLI subcommand or
   store method exists in `internal/secrets/` or `cmd/baifo/`.
+
+## exec tool (internal/mcps/builtin/filesystem)
+
+- exec timeout kill only kills the shell, not child processes (no process group on Unix /
+  Job Object on Windows). Today `cmd.Process.Kill()` in `processStore.Exec` and
+  `processStore.Kill` terminate only the top-level `sh`/`pwsh` process; any grandchild
+  processes it spawned continue running. Fix requires `syscall.SysProcAttr{Setpgid: true}`
+  + `syscall.Kill(-pgid, syscall.SIGKILL)` on Unix, and a Windows Job Object wrapping the
+  child process on Windows.
