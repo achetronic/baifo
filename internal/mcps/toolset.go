@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"google.golang.org/adk/agent"
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/mcptoolset"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/mcptoolset"
 
 	"github.com/achetronic/baifo/internal/secrets"
 )

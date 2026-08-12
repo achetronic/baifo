@@ -8,14 +8,15 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/adk/agent/llmagent"
-	"google.golang.org/adk/tool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/agent/llmagent"
+	"google.golang.org/adk/v2/tool"
 
 	"github.com/achetronic/baifo/internal/audit"
 	"github.com/achetronic/baifo/internal/secrets"
 )
 
-// expandedPairs is a process-wide map keyed by tool.Context.FunctionCallID
+// expandedPairs is a process-wide map keyed by agent.Context.FunctionCallID
 // that holds the (secret name → raw value) pairs the expander
 // substituted for one specific tool call. The before-tool callback
 // populates it; the after-tool redactor consumes it and removes the
@@ -23,7 +24,7 @@ import (
 // FunctionCallID so concurrent tool calls do not collide.
 //
 // This is the simplest correct way to share state between before- and
-// after- callbacks without mutating tool.Context (which ADK does not
+// after- callbacks without mutating agent.Context (which ADK does not
 // allow) or holding global locks.
 var expandedPairs sync.Map // map[string]map[string]string
 
@@ -54,7 +55,7 @@ var expandedPairs sync.Map // map[string]map[string]string
 //
 // The set is keyed by exact tool name. nil/empty disables the guard.
 func makeBeforeExpand(store *secrets.Store, allower secrets.Allower, opaqueTools map[string]struct{}) llmagent.BeforeToolCallback {
-	return func(ctx tool.Context, t tool.Tool, args map[string]any) (map[string]any, error) {
+	return func(ctx agent.Context, t tool.Tool, args map[string]any) (map[string]any, error) {
 		if store == nil {
 			return nil, nil
 		}
@@ -114,7 +115,7 @@ func makeBeforeExpand(store *secrets.Store, allower secrets.Allower, opaqueTools
 // The result map is mutated in place so that the audit callback
 // running after this one logs the redacted view, never the raw one.
 func makeAfterRedact(store *secrets.Store, scrubAll bool, minLen int) llmagent.AfterToolCallback {
-	return func(ctx tool.Context, _ tool.Tool, _, result map[string]any, _ error) (map[string]any, error) {
+	return func(ctx agent.Context, _ tool.Tool, _, result map[string]any, _ error) (map[string]any, error) {
 		if result == nil {
 			// Still drain the expandedPairs entry so it does not
 			// leak across the sync.Map between unrelated calls.
@@ -169,7 +170,7 @@ func filterByMinLen(pairs map[string]string, minLen int) map[string]string {
 // per tool call to the audit log. A nil Recorder is a no-op so test
 // scenarios can build agents without auditing.
 func makeAfterAudit(agentID string, rec *audit.Recorder) llmagent.AfterToolCallback {
-	return func(_ tool.Context, t tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
+	return func(_ agent.Context, t tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
 		entry := audit.Entry{
 			Timestamp: time.Now().UTC(),
 			AgentID:   agentID,

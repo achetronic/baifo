@@ -9,8 +9,9 @@ import (
 	"sort"
 	"strings"
 
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/functiontool"
 
 	baifoagent "github.com/achetronic/baifo/internal/agent"
 	"github.com/achetronic/baifo/internal/workers"
@@ -120,7 +121,7 @@ func (t *Tools) buildSpawnDynamic() (tool.Tool, error) {
 	desc := composeDynamicDescription(t.Universe)
 	return functiontool.New(
 		functiontool.Config{Name: "spawn_dynamic_agent", Description: desc},
-		func(ctx tool.Context, a DynamicSpawnArgs) (SpawnResult, error) {
+		func(ctx agent.Context, a DynamicSpawnArgs) (SpawnResult, error) {
 			spec, err := t.buildDynamicSpec(a)
 			if err != nil {
 				return SpawnResult{}, err
@@ -144,7 +145,7 @@ func (t *Tools) buildSpawnDynamicBatch() (tool.Tool, error) {
 		"if any spec fails validation the whole batch is rejected."
 	return functiontool.New(
 		functiontool.Config{Name: "spawn_dynamic_agents", Description: desc},
-		func(ctx tool.Context, a BatchSpawnArgs) (BatchSpawnResult, error) {
+		func(ctx agent.Context, a BatchSpawnArgs) (BatchSpawnResult, error) {
 			ids := make([]string, 0, len(a.Agents))
 			for i, spawn := range a.Agents {
 				spec, err := t.buildDynamicSpec(spawn)

@@ -9,11 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/adk/agent"
-	"google.golang.org/adk/memory"
-	"google.golang.org/adk/session"
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/toolconfirmation"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/memory"
+	"google.golang.org/adk/v2/session"
+	"google.golang.org/adk/v2/tool/toolconfirmation"
 	"google.golang.org/genai"
 )
 
@@ -48,18 +47,18 @@ func (s *fakeState) All() iter.Seq2[string, any] {
 	}
 }
 
-// fakeToolContext implements just enough of tool.Context for the
+// fakeToolContext implements just enough of agent.Context for the
 // todos handlers, which only ever touch State(). Every other
 // accessor returns a zero value; the embedded context.Context
 // satisfies the ReadonlyContext requirement (which itself embeds
 // context.Context, hence the Deadline/Done/Err/Value methods).
 type fakeToolContext struct {
-	context.Context
+	agent.StrictContextMock
 	state *fakeState
 }
 
 func newFakeToolContext() *fakeToolContext {
-	return &fakeToolContext{Context: context.Background(), state: newFakeState()}
+	return &fakeToolContext{StrictContextMock: agent.StrictContextMock{Ctx: context.Background()}, state: newFakeState()}
 }
 
 func (c *fakeToolContext) State() session.State                 { return c.state }
@@ -84,9 +83,9 @@ func (c *fakeToolContext) SearchMemory(context.Context, string) (*memory.SearchR
 	return nil, nil
 }
 
-// Compile-time assertion: if tool.Context grows, this line fails
+// Compile-time assertion: if agent.Context grows, this line fails
 // and we'll know we need to stub more methods.
-var _ tool.Context = (*fakeToolContext)(nil)
+var _ agent.Context = (*fakeToolContext)(nil)
 
 // Avoid the "imported and not used" warning on time when the
 // embedded context.Context doesn't need it. Real bots use this

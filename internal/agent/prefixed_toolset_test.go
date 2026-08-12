@@ -6,9 +6,9 @@ package agent
 import (
 	"testing"
 
-	"google.golang.org/adk/agent"
-	"google.golang.org/adk/model"
-	"google.golang.org/adk/tool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/model"
+	"google.golang.org/adk/v2/tool"
 	"google.golang.org/genai"
 )
 
@@ -26,7 +26,7 @@ func (f *fakeMCPTool) IsLongRunning() bool { return false }
 func (f *fakeMCPTool) Declaration() *genai.FunctionDeclaration {
 	return &genai.FunctionDeclaration{Name: f.name, Description: "desc of " + f.name}
 }
-func (f *fakeMCPTool) Run(_ tool.Context, _ any) (map[string]any, error) {
+func (f *fakeMCPTool) Run(_ agent.Context, _ any) (map[string]any, error) {
 	f.ran = true
 	return map[string]any{"ok": true}, nil
 }

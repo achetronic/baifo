@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"time"
 
-	"google.golang.org/adk/agent"
-	"google.golang.org/adk/tool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/tool"
 )
 
 // resilientToolsetTimeout bounds how long the agent waits for one

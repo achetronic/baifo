@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/adk/session"
+	"google.golang.org/adk/v2/session"
 	"google.golang.org/genai"
 
 	"github.com/achetronic/baifo/internal/storage"
@@ -81,7 +81,7 @@ func TestAppendEventPersistsAndBumpsIndex(t *testing.T) {
 		t.Fatalf("Create: %v", err)
 	}
 
-	evt := session.NewEvent("inv-1")
+	evt := session.NewEvent(t.Context(), "inv-1")
 	evt.Author = "user"
 	evt.Content = &genai.Content{Role: "user", Parts: []*genai.Part{{Text: "hi"}}}
 	if err := svc.AppendEvent(ctx, resp.Session, evt); err != nil {
@@ -154,7 +154,7 @@ func TestSessionsSurvivesReopen(t *testing.T) {
 	svc, _ := New(db)
 	ctx := context.Background()
 	resp, _ := svc.Create(ctx, &session.CreateRequest{AppName: "a", UserID: "u", SessionID: "alive"})
-	evt := session.NewEvent("inv")
+	evt := session.NewEvent(t.Context(), "inv")
 	evt.Author = "model"
 	_ = svc.AppendEvent(ctx, resp.Session, evt)
 	_ = db.Close()
@@ -184,7 +184,7 @@ func TestStateDeltaSurvivesReopen(t *testing.T) {
 	svc, _ := New(db)
 	ctx := context.Background()
 	resp, _ := svc.Create(ctx, &session.CreateRequest{AppName: "a", UserID: "u", SessionID: "s"})
-	evt := session.NewEvent("inv")
+	evt := session.NewEvent(t.Context(), "inv")
 	evt.Author = "model"
 	evt.Actions.StateDelta["todos"] = []any{
 		map[string]any{"content": "do x", "status": "pending"},

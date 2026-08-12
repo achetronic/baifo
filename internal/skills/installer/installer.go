@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	adkskill "google.golang.org/adk/tool/skilltoolset/skill"
+	adkskill "google.golang.org/adk/v2/tool/skilltoolset/skill"
 )
 
 // httpClient is the package-level HTTP client. Timeout is generous

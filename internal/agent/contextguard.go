@@ -6,8 +6,8 @@ package agent
 import (
 	"sync"
 
-	"google.golang.org/adk/model"
-	"google.golang.org/adk/runner"
+	"google.golang.org/adk/v2/model"
+	"google.golang.org/adk/v2/runner"
 
 	"github.com/achetronic/adk-utils-go/plugin/contextguard"
 

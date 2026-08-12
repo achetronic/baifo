@@ -17,7 +17,7 @@ import (
 	"iter"
 	"time"
 
-	"google.golang.org/adk/session"
+	"google.golang.org/adk/v2/session"
 )
 
 // Facade is the contract clients use to drive the baifo core. The

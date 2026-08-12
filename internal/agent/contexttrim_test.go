@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"google.golang.org/adk/model"
-	"google.golang.org/adk/plugin"
-	"google.golang.org/adk/runner"
+	"google.golang.org/adk/v2/model"
+	"google.golang.org/adk/v2/plugin"
+	"google.golang.org/adk/v2/runner"
 	"google.golang.org/genai"
 )
 

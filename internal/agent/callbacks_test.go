@@ -8,27 +8,27 @@ import (
 	"iter"
 	"testing"
 
-	adkagent "google.golang.org/adk/agent"
-	"google.golang.org/adk/memory"
-	"google.golang.org/adk/session"
-	"google.golang.org/adk/tool/toolconfirmation"
+	adkagent "google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/memory"
+	"google.golang.org/adk/v2/session"
+	"google.golang.org/adk/v2/tool/toolconfirmation"
 	"google.golang.org/genai"
 
 	"github.com/achetronic/baifo/internal/secrets"
 )
 
-// fakeToolCtx is the smallest tool.Context we can build that
+// fakeToolCtx is the smallest agent.Context we can build that
 // satisfies the interface. We only need FunctionCallID and State()
 // on the happy path; the others must exist for the type to match
 // but the callback never reaches them.
 type fakeToolCtx struct {
-	context.Context
+	adkagent.StrictContextMock
 	state *fakeState
 	id    string
 }
 
 func newFakeToolCtx() *fakeToolCtx {
-	return &fakeToolCtx{Context: context.Background(), state: newFakeState(), id: "call-1"}
+	return &fakeToolCtx{StrictContextMock: adkagent.StrictContextMock{Ctx: context.Background()}, state: newFakeState(), id: "call-1"}
 }
 
 func (c *fakeToolCtx) FunctionCallID() string               { return c.id }
@@ -53,7 +53,7 @@ func (c *fakeToolCtx) SearchMemory(context.Context, string) (*memory.SearchRespo
 	return nil, nil
 }
 
-// Artifacts on the real tool.Context is from package agent (agent.Artifacts).
+// Artifacts on the real agent.Context is from package agent (agent.Artifacts).
 // We don't need it for the callback's code path. To satisfy the
 // interface we shadow it as a nil pointer in the unused-field
 // assertion below.
