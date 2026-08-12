@@ -14,7 +14,7 @@ import (
 	"time"
 
 	anthropicsdk "github.com/anthropics/anthropic-sdk-go"
-	"google.golang.org/adk/model"
+	"google.golang.org/adk/v2/model"
 )
 
 // Retry strategy identifiers. They mirror config.RetryStrategy* but are

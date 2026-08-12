@@ -9,12 +9,12 @@ import (
 	"iter"
 	"testing"
 
-	"google.golang.org/adk/agent"
-	"google.golang.org/adk/model"
-	"google.golang.org/adk/runner"
-	"google.golang.org/adk/session"
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/model"
+	"google.golang.org/adk/v2/runner"
+	"google.golang.org/adk/v2/session"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/functiontool"
 	"google.golang.org/genai"
 )
 
@@ -108,7 +108,7 @@ func TestAgenticLoopOrdering(t *testing.T) {
 			Name:        "diag",
 			Description: "diagnostic tool; returns a fixed string",
 		},
-		func(_ tool.Context, _ struct{ Q string }) (struct{ Echo string }, error) {
+		func(_ agent.Context, _ struct{ Q string }) (struct{ Echo string }, error) {
 			return struct{ Echo string }{Echo: "pong"}, nil
 		},
 	)

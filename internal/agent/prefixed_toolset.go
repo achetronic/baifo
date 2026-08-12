@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"strings"
 
-	"google.golang.org/adk/agent"
-	"google.golang.org/adk/model"
-	"google.golang.org/adk/tool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/model"
+	"google.golang.org/adk/v2/tool"
 	"google.golang.org/genai"
 )
 
@@ -47,7 +47,7 @@ const toolNamePrefixSep = "__"
 type declRunTool interface {
 	tool.Tool
 	Declaration() *genai.FunctionDeclaration
-	Run(ctx tool.Context, args any) (map[string]any, error)
+	Run(ctx agent.Context, args any) (map[string]any, error)
 }
 
 // prefixedToolset wraps an external MCP's toolset and renames every
@@ -122,7 +122,7 @@ func (t *prefixedTool) Declaration() *genai.FunctionDeclaration {
 // Run delegates to the inner tool unchanged. The inner MCP tool calls
 // the server with its own original name, so the prefix is purely a
 // catalogue/routing concern and never crosses the wire.
-func (t *prefixedTool) Run(ctx tool.Context, args any) (map[string]any, error) {
+func (t *prefixedTool) Run(ctx agent.Context, args any) (map[string]any, error) {
 	return t.inner.Run(ctx, args)
 }
 
@@ -133,7 +133,7 @@ func (t *prefixedTool) Run(ctx tool.Context, args any) (map[string]any, error) {
 // request's function-declaration list. Keeping the key and the
 // declaration name identical is what lets the flow route a
 // "magnific__images_upscale" function call back to this wrapper.
-func (t *prefixedTool) ProcessRequest(ctx tool.Context, req *model.LLMRequest) error {
+func (t *prefixedTool) ProcessRequest(ctx agent.Context, req *model.LLMRequest) error {
 	if req.Tools == nil {
 		req.Tools = make(map[string]any)
 	}

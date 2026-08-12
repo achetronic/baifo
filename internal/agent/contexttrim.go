@@ -26,11 +26,11 @@ import (
 	"fmt"
 	"unicode/utf8"
 
-	"google.golang.org/adk/agent"
-	"google.golang.org/adk/agent/llmagent"
-	"google.golang.org/adk/model"
-	"google.golang.org/adk/plugin"
-	"google.golang.org/adk/runner"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/agent/llmagent"
+	"google.golang.org/adk/v2/model"
+	"google.golang.org/adk/v2/plugin"
+	"google.golang.org/adk/v2/runner"
 )
 
 // BuildContextTrimPlugin returns an ADK plugin whose BeforeModelCallback
@@ -42,7 +42,7 @@ func BuildContextTrimPlugin(maxChars int) *plugin.Plugin {
 		return nil
 	}
 
-	cb := llmagent.BeforeModelCallback(func(_ agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
+	cb := llmagent.BeforeModelCallback(func(_ agent.Context, req *model.LLMRequest) (*model.LLMResponse, error) {
 		for _, c := range req.Contents {
 			if c == nil || c.Role != "user" {
 				continue

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/adk/session"
+	"google.golang.org/adk/v2/session"
 )
 
 // IndexEntry is the per-session metadata stored in the sessions table.

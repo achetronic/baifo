@@ -6,8 +6,9 @@ package browse
 import (
 	"fmt"
 
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/functiontool"
 )
 
 // ADKTools returns every tool of the built-in browse MCP wrapped as a
@@ -30,7 +31,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 							"Serper if their API keys are configured. Recommended flow: web_search first to " +
 							"find relevant URLs, then web_fetch on the most relevant ones.",
 					},
-					func(ctx tool.Context, a WebSearchArgs) (WebSearchResult, error) {
+					func(ctx agent.Context, a WebSearchArgs) (WebSearchResult, error) {
 						return t.WebSearch(ctx, a)
 					},
 				)
@@ -51,7 +52,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 							"pages (>50KB) the content is saved to a temp file and the path is returned in " +
 							"saved_to_file — use the filesystem tools to read it. Max response size: 5MB.",
 					},
-					func(ctx tool.Context, a WebFetchArgs) (WebFetchResult, error) {
+					func(ctx agent.Context, a WebFetchArgs) (WebFetchResult, error) {
 						return t.WebFetch(ctx, a)
 					},
 				)
@@ -72,7 +73,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 							"written and the final file path. When a download directory is configured, " +
 							"file_path is resolved inside it and traversal is rejected.",
 					},
-					func(ctx tool.Context, a WebDownloadArgs) (WebDownloadResult, error) {
+					func(ctx agent.Context, a WebDownloadArgs) (WebDownloadResult, error) {
 						return t.WebDownload(ctx, a)
 					},
 				)

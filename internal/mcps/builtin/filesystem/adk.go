@@ -6,8 +6,9 @@ package filesystem
 import (
 	"fmt"
 
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/functiontool"
 )
 
 // ADKTools returns every tool of the built-in filesystem MCP wrapped
@@ -25,7 +26,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 			build: func() (tool.Tool, error) {
 				return functiontool.New(
 					functiontool.Config{Name: "system_info", Description: "Return OS, architecture, hostname, user, working directory and current time. Call ONLY when the user explicitly asks about the environment. Never call preemptively."},
-					func(_ tool.Context, _ struct{}) (SystemInfoResult, error) {
+					func(_ agent.Context, _ struct{}) (SystemInfoResult, error) {
 						return t.SystemInfo()
 					},
 				)
@@ -42,7 +43,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 						Description: "List directory contents with optional depth, glob pattern filter, and hidden " +
 							"file inclusion. Use depth=1 for a flat listing, depth>1 for a tree view.",
 					},
-					func(_ tool.Context, a LsArgs) (LsResult, error) { return t.Ls(a) },
+					func(_ agent.Context, a LsArgs) (LsResult, error) { return t.Ls(a) },
 				)
 			},
 		},
@@ -55,7 +56,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 						Name:        "read_file",
 						Description: readFileDescription(t.maxReadFileChars),
 					},
-					func(_ tool.Context, a ReadFileArgs) (ReadFileResult, error) { return t.ReadFile(a) },
+					func(_ agent.Context, a ReadFileArgs) (ReadFileResult, error) { return t.ReadFile(a) },
 				)
 			},
 		},
@@ -76,7 +77,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 							"For very large files, write the first chunk with mode=overwrite and then keep calling with " +
 							"mode=append.",
 					},
-					func(_ tool.Context, a WriteFileArgs) (WriteFileResult, error) { return t.WriteFile(a) },
+					func(_ agent.Context, a WriteFileArgs) (WriteFileResult, error) { return t.WriteFile(a) },
 				)
 			},
 		},
@@ -91,7 +92,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 						Description: "Apply one or more find-and-replace edits to a file. Edits are applied " +
 							"sequentially. old_text must match exactly. Reports which edits succeeded and which failed.",
 					},
-					func(_ tool.Context, a EditFileArgs) (EditFileResult, error) { return t.EditFile(a) },
+					func(_ agent.Context, a EditFileArgs) (EditFileResult, error) { return t.EditFile(a) },
 				)
 			},
 		},
@@ -104,7 +105,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 						Name:        "search",
 						Description: searchDescription(t.maxSearchOutputChars),
 					},
-					func(_ tool.Context, a SearchArgs) (SearchResult, error) { return t.Search(a) },
+					func(_ agent.Context, a SearchArgs) (SearchResult, error) { return t.Search(a) },
 				)
 			},
 		},
@@ -114,7 +115,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 			build: func() (tool.Tool, error) {
 				return functiontool.New(
 					functiontool.Config{Name: "diff", Description: "Compare two files (or sections of them) and return a unified diff."},
-					func(_ tool.Context, a DiffArgs) (DiffResult, error) { return t.Diff(a) },
+					func(_ agent.Context, a DiffArgs) (DiffResult, error) { return t.Diff(a) },
 				)
 			},
 		},
@@ -127,7 +128,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 						Name:        "exec",
 						Description: execDescription(t.maxExecOutputChars),
 					},
-					func(_ tool.Context, a ExecArgs) (ExecResult, error) { return t.Exec(a) },
+					func(_ agent.Context, a ExecArgs) (ExecResult, error) { return t.Exec(a) },
 				)
 			},
 		},
@@ -137,7 +138,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 			build: func() (tool.Tool, error) {
 				return functiontool.New(
 					functiontool.Config{Name: "process_status", Description: processStatusDescription(t.maxExecOutputChars)},
-					func(_ tool.Context, a ProcessStatusArgs) (ProcessStatusResult, error) { return t.ProcessStatus(a) },
+					func(_ agent.Context, a ProcessStatusArgs) (ProcessStatusResult, error) { return t.ProcessStatus(a) },
 				)
 			},
 		},
@@ -147,7 +148,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 			build: func() (tool.Tool, error) {
 				return functiontool.New(
 					functiontool.Config{Name: "process_kill", Description: "Kill a background process by id."},
-					func(_ tool.Context, a ProcessKillArgs) (ProcessKillResult, error) { return t.ProcessKill(a) },
+					func(_ agent.Context, a ProcessKillArgs) (ProcessKillResult, error) { return t.ProcessKill(a) },
 				)
 			},
 		},
@@ -162,7 +163,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 						Description: "In-memory key-value store. Use to save snippets / plans / intermediate results " +
 							"between tool calls without retransmitting them. action in {set, get, delete, list}.",
 					},
-					func(_ tool.Context, a ScratchArgs) (ScratchResult, error) { return t.Scratch(a) },
+					func(_ agent.Context, a ScratchArgs) (ScratchResult, error) { return t.Scratch(a) },
 				)
 			},
 		},
@@ -172,7 +173,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 			build: func() (tool.Tool, error) {
 				return functiontool.New(
 					functiontool.Config{Name: "undo", Description: "Undo the last write_file or edit_file operation on the given path."},
-					func(_ tool.Context, a UndoArgs) (UndoResult, error) { return t.Undo(a) },
+					func(_ agent.Context, a UndoArgs) (UndoResult, error) { return t.Undo(a) },
 				)
 			},
 		},

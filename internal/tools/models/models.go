@@ -23,8 +23,9 @@ import (
 
 	"github.com/achetronic/baifo/internal/modelcatalog"
 
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/functiontool"
 )
 
 // ProviderRef is one provider as declared in baifo.yaml: its unique
@@ -118,7 +119,7 @@ func (t *Tools) ADKTools() ([]tool.Tool, error) {
 				"the `reasoning` field of a spawn spec to control how hard the worker thinks. " +
 				"Optional `provider` argument narrows the result to one configured provider by name.",
 		},
-		func(_ tool.Context, a listModelsArgs) (ListModelsResult, error) {
+		func(_ agent.Context, a listModelsArgs) (ListModelsResult, error) {
 			return t.listModels(a), nil
 		},
 	)

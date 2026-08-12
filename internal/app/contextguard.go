@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"google.golang.org/adk/session"
+	"google.golang.org/adk/v2/session"
 
 	baifoagent "github.com/achetronic/baifo/internal/agent"
 	"github.com/achetronic/baifo/internal/config"

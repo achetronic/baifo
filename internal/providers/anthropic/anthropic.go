@@ -13,7 +13,7 @@ import (
 	"os"
 
 	utilsanthropic "github.com/achetronic/adk-utils-go/genai/anthropic"
-	"google.golang.org/adk/model"
+	"google.golang.org/adk/v2/model"
 
 	"github.com/achetronic/baifo/internal/providers"
 )

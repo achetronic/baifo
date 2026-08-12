@@ -4,7 +4,7 @@
 package agent
 
 import (
-	"google.golang.org/adk/agent"
+	"google.golang.org/adk/v2/agent"
 )
 
 // staticInstructionProvider returns an InstructionProvider that always

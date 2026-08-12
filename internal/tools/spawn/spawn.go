@@ -17,8 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/functiontool"
 
 	"github.com/achetronic/baifo/internal/config"
 	"github.com/achetronic/baifo/internal/workers"
@@ -171,7 +172,7 @@ func (t *Tools) buildSpawnStatic() (tool.Tool, error) {
 	desc := composeStaticDescription(t.Templates)
 	return functiontool.New(
 		functiontool.Config{Name: "spawn_static_agent", Description: desc},
-		func(ctx tool.Context, a SpawnStaticArgs) (SpawnResult, error) {
+		func(ctx agent.Context, a SpawnStaticArgs) (SpawnResult, error) {
 			if t.Templates == nil {
 				return SpawnResult{}, fmt.Errorf("no agents.yaml loaded")
 			}
@@ -305,7 +306,7 @@ func (t *Tools) buildQuery() (tool.Tool, error) {
 		"the worker transitions to running. Call collect_agent once status is idle."
 	return functiontool.New(
 		functiontool.Config{Name: "query_agent", Description: desc},
-		func(ctx tool.Context, a QueryArgs) (QueryResult, error) {
+		func(ctx agent.Context, a QueryArgs) (QueryResult, error) {
 			if err := t.Manager.Query(ctx, a.WorkerID, a.Message); err != nil {
 				return QueryResult{}, err
 			}
@@ -337,7 +338,7 @@ func (t *Tools) buildListTemplates() (tool.Tool, error) {
 		"accepted by spawn_static_agent."
 	return functiontool.New(
 		functiontool.Config{Name: "list_agents", Description: desc},
-		func(_ tool.Context, _ struct{}) (TemplatesResult, error) {
+		func(_ agent.Context, _ struct{}) (TemplatesResult, error) {
 			if t.Templates == nil {
 				return TemplatesResult{Templates: []TemplateSummary{}}, nil
 			}
@@ -381,7 +382,7 @@ func (t *Tools) buildListRunning() (tool.Tool, error) {
 		"available to spawn, use list_agents instead."
 	return functiontool.New(
 		functiontool.Config{Name: "list_running_agents", Description: desc},
-		func(_ tool.Context, _ struct{}) (ListResult, error) {
+		func(_ agent.Context, _ struct{}) (ListResult, error) {
 			infos := t.Manager.List()
 			out := ListResult{Workers: make([]WorkerSummary, 0, len(infos))}
 			for _, info := range infos {
@@ -424,7 +425,7 @@ func (t *Tools) buildInspect() (tool.Tool, error) {
 	const desc = "Peek at a worker's current state without collecting it."
 	return functiontool.New(
 		functiontool.Config{Name: "inspect_agent", Description: desc},
-		func(_ tool.Context, a InspectArgs) (WorkerSummary, error) {
+		func(_ agent.Context, a InspectArgs) (WorkerSummary, error) {
 			info, err := t.Manager.Inspect(a.WorkerID, a.SinceEvent)
 			if err != nil {
 				return WorkerSummary{}, err
@@ -453,7 +454,7 @@ func (t *Tools) buildCollect() (tool.Tool, error) {
 	const desc = "Wait for a worker to reach idle/done, return its output text, and remove it from the registry."
 	return functiontool.New(
 		functiontool.Config{Name: "collect_agent", Description: desc},
-		func(ctx tool.Context, a CollectArgs) (CollectResult, error) {
+		func(ctx agent.Context, a CollectArgs) (CollectResult, error) {
 			timeout := time.Duration(a.TimeoutMs) * time.Millisecond
 			info, err := t.Manager.Collect(ctx, a.WorkerID, timeout)
 			if err != nil {
@@ -490,7 +491,7 @@ func (t *Tools) buildKill() (tool.Tool, error) {
 	const desc = "Cancel a running worker. The worker transitions to killed and is auto-collected after a grace period. Optional reason explains why."
 	return functiontool.New(
 		functiontool.Config{Name: "kill_agent", Description: desc},
-		func(_ tool.Context, a KillArgs) (KillResult, error) {
+		func(_ agent.Context, a KillArgs) (KillResult, error) {
 			reason := a.Reason
 			if reason == "" {
 				reason = "killed by agent"

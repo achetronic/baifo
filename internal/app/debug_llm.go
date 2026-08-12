@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"sync/atomic"
 
-	"google.golang.org/adk/model"
+	"google.golang.org/adk/v2/model"
 )
 
 // debugLLM wraps a model.LLM and dumps every LLMRequest to a JSON

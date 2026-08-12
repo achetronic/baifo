@@ -13,7 +13,7 @@ import (
 	"errors"
 	"fmt"
 
-	"google.golang.org/adk/tool"
+	"google.golang.org/adk/v2/tool"
 
 	"github.com/achetronic/baifo/internal/config"
 	"github.com/achetronic/baifo/internal/mcps/builtin/browse"

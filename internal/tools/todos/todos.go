@@ -27,9 +27,10 @@ import (
 	"fmt"
 	"sync"
 
-	"google.golang.org/adk/session"
-	"google.golang.org/adk/tool"
-	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/v2/agent"
+	"google.golang.org/adk/v2/session"
+	"google.golang.org/adk/v2/tool"
+	"google.golang.org/adk/v2/tool/functiontool"
 )
 
 // stateKey is the session-state slot contextguard already reads.
@@ -106,7 +107,7 @@ func (t *Tools) buildList() (tool.Tool, error) {
 		"that may outlive the model's immediate context."
 	return functiontool.New(
 		functiontool.Config{Name: "todos_list", Description: desc},
-		func(ctx tool.Context, _ struct{}) (ListResult, error) {
+		func(ctx agent.Context, _ struct{}) (ListResult, error) {
 			t.mu.Lock()
 			defer t.mu.Unlock()
 			items, err := readTodos(ctx)
@@ -142,7 +143,7 @@ func (t *Tools) buildWrite() (tool.Tool, error) {
 		"compaction — write it whenever you plan multi-step work."
 	return functiontool.New(
 		functiontool.Config{Name: "todos_write", Description: desc},
-		func(ctx tool.Context, a WriteArgs) (WriteResult, error) {
+		func(ctx agent.Context, a WriteArgs) (WriteResult, error) {
 			t.mu.Lock()
 			defer t.mu.Unlock()
 			if err := writeTodos(ctx, a.Todos); err != nil {
@@ -178,7 +179,7 @@ func (t *Tools) buildUpdate() (tool.Tool, error) {
 		"in_progress or completed without re-emitting the full list."
 	return functiontool.New(
 		functiontool.Config{Name: "todos_update", Description: desc},
-		func(ctx tool.Context, a UpdateArgs) (UpdateResult, error) {
+		func(ctx agent.Context, a UpdateArgs) (UpdateResult, error) {
 			t.mu.Lock()
 			defer t.mu.Unlock()
 			items, err := readTodos(ctx)
@@ -218,7 +219,7 @@ func (t *Tools) buildClear() (tool.Tool, error) {
 		"with todos_write so the resumed conversation still has context."
 	return functiontool.New(
 		functiontool.Config{Name: "todos_clear", Description: desc},
-		func(ctx tool.Context, _ struct{}) (ClearResult, error) {
+		func(ctx agent.Context, _ struct{}) (ClearResult, error) {
 			t.mu.Lock()
 			defer t.mu.Unlock()
 			if err := writeTodos(ctx, nil); err != nil {
@@ -241,7 +242,7 @@ func (t *Tools) buildClear() (tool.Tool, error) {
 //
 // Matches what contextguard's loadTodos does internally so both
 // readers agree on the universe of valid shapes.
-func readTodos(ctx tool.Context) ([]TodoItem, error) {
+func readTodos(ctx agent.Context) ([]TodoItem, error) {
 	raw, err := ctx.State().Get(stateKey)
 	if err != nil {
 		if errors.Is(err, session.ErrStateKeyNotExist) {
@@ -275,7 +276,7 @@ func readTodos(ctx tool.Context) ([]TodoItem, error) {
 
 // writeTodos commits the slice. Set both updates the in-memory
 // state and records a StateDelta entry that AppendEvent persists.
-func writeTodos(ctx tool.Context, items []TodoItem) error {
+func writeTodos(ctx agent.Context, items []TodoItem) error {
 	if items == nil {
 		items = []TodoItem{}
 	}

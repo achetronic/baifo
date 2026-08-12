@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"google.golang.org/adk/agent"
+	"google.golang.org/adk/v2/agent"
 	"google.golang.org/genai"
 
 	"github.com/achetronic/baifo/internal/config"

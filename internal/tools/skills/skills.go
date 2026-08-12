@@ -15,9 +15,9 @@ package skills
 import (
 	"context"
 
-	"google.golang.org/adk/tool"
-	skilltoolset "google.golang.org/adk/tool/skilltoolset"
-	"google.golang.org/adk/tool/skilltoolset/skill"
+	"google.golang.org/adk/v2/tool"
+	skilltoolset "google.golang.org/adk/v2/tool/skilltoolset"
+	"google.golang.org/adk/v2/tool/skilltoolset/skill"
 )
 
 // Tools wraps a skill.Source — the ADK abstraction over a tree of
