@@ -111,5 +111,3 @@ require (
 	github.com/standard-webhooks/standard-webhooks/libraries v0.0.1 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.6 // indirect
 )
-
-replace github.com/achetronic/adk-utils-go => ../adk-utils-go
