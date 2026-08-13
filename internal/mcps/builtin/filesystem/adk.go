@@ -5,6 +5,7 @@ package filesystem
 
 import (
 	"fmt"
+	"runtime"
 
 	"google.golang.org/adk/v2/agent"
 	"google.golang.org/adk/v2/tool"
@@ -198,12 +199,17 @@ type toolDef struct {
 }
 
 // execDescription returns the description string for the exec tool.
+// It always states the shell and OS so models do not write POSIX pipelines blindly.
 // When cap > 0 it appends a note stating the per-stream character limit
 // and how to work around it. cap == 0 means unlimited; the note is omitted.
 func execDescription(cap int) string {
-	base := "Execute a shell command. Foreground (default) returns the output; background " +
-		"(background=true) returns a process_id to inspect via process_status / process_kill. " +
-		"WARNING: grants full shell access in the agent's sandbox."
+	base := fmt.Sprintf(
+		"Execute a shell command. Commands run under %s on %s. "+
+			"Foreground (default) returns the output; background "+
+			"(background=true) returns a process_id to inspect via process_status / process_kill. "+
+			"WARNING: grants full shell access in the agent's sandbox.",
+		shellName(), runtime.GOOS,
+	)
 	if cap > 0 {
 		return base + fmt.Sprintf(
 			" Stdout and stderr are each capped at %d chars; truncated output ends with a "+
