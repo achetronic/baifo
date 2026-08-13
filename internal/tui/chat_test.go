@@ -15,7 +15,7 @@ import (
 // bottom: appending a message that overflows the viewport keeps the
 // most recent line visible.
 func TestChatStuckByDefault(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	chat := newChatView(theme, true)
 	chat.SetSize(40, 6) // small enough to overflow with 5 messages
 	msgs := make([]Message, 0, 10)
@@ -36,7 +36,7 @@ func TestChatStuckByDefault(t *testing.T) {
 // and verifies the viewport does NOT auto-jump to the bottom when new
 // content arrives.
 func TestChatRespectsAutoScrollFalse(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	chat := newChatView(theme, false)
 	chat.SetSize(40, 6)
 	if chat.stuck {
@@ -62,7 +62,7 @@ func TestChatRespectsAutoScrollFalse(t *testing.T) {
 // TestChatScrollUpUnsticks simulates the operator hitting PgUp and
 // verifies the stuck flag flips to false.
 func TestChatScrollUpUnsticks(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	chat := newChatView(theme, true)
 	chat.SetSize(20, 4)
 

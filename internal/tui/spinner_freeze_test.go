@@ -28,7 +28,7 @@ func seedTickMsg(m Model) tea.Msg {
 // non-nil cmd (chain continues).
 func TestSpinnerTickChainDiesWhenStreamEnds(t *testing.T) {
 	f := &fakeFacade{reply: "ok"}
-	model := NewModel(f, false, "v0")
+	model := NewModel(f, "v0")
 	model.splash = false
 
 	// Submit a message to start a stream and arm the spinner.
@@ -79,7 +79,7 @@ func TestSpinnerTickChainDiesWhenStreamEnds(t *testing.T) {
 // dummy before submitting.
 func TestDoubleSubmitDoesNotDoubleSeedSpinner(t *testing.T) {
 	f := &fakeFacade{reply: "ok"}
-	model := NewModel(f, false, "v0")
+	model := NewModel(f, "v0")
 	model.splash = false
 
 	// Simulate "a stream is already alive" by installing a non-nil cancel.
@@ -127,7 +127,7 @@ func TestDoubleSubmitDoesNotDoubleSeedSpinner(t *testing.T) {
 // After the second stream drains, a TickMsg must return nil cmd (stopped).
 func TestSpinnerTickContinuesAcrossConsecutiveStreams(t *testing.T) {
 	f := &fakeFacade{reply: "first"}
-	model := NewModel(f, false, "v0")
+	model := NewModel(f, "v0")
 	model.splash = false
 
 	// First message, drain stream.

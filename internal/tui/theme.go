@@ -93,84 +93,72 @@ var canariasAccent = Accent{
 	Subtle:  lipgloss.Color("#5E3119"), // arcilla
 }
 
-// Glyphs (Nerd Font primary, ASCII fallback)
-
-type glyphSet struct {
-	nerd  string
-	ascii string
+// Glyphs are pure ASCII, on purpose: anything exotic turns into
+// tofu boxes on default console fonts, and baifo must render on
+// every terminal with every font. The one companion character lives
+// outside this table: the selection rail, a CP437 half block present
+// in every monospace font, which needs full-cell height to stack
+// into a solid bar. Components must call theme.Glyph(name) and never
+// hardcode a glyph.
+var glyphs = map[string]string{
+	"root":        "R",
+	"static":      "S",
+	"dynamic":     "D",
+	"skill":       "k",
+	"mcp":         "m",
+	"provider":    "p",
+	"secret":      "*",
+	"fact":        "f",
+	"running":     "~",
+	"done":        "OK",
+	"failed":      "x",
+	"idle":        ".",
+	"chevron":     ">",
+	"expanded":    "v",
+	"bullet":      "*",
+	"arrow_right": "->",
+	"arrow_left":  "<-",
+	"gear":        "*",
+	"search":      "?",
+	"clock":       "t",
+	"lock":        "#",
+	"compact":     "><",
+	"warn":        "!",
 }
 
-var glyphs = map[string]glyphSet{
-	"root":        {nerd: "", ascii: "R"},
-	"static":      {nerd: "", ascii: "S"},
-	"dynamic":     {nerd: "", ascii: "D"},
-	"skill":       {nerd: "", ascii: "k"},
-	"mcp":         {nerd: "", ascii: "m"},
-	"provider":    {nerd: "", ascii: "p"},
-	"secret":      {nerd: "", ascii: "*"},
-	"fact":        {nerd: "", ascii: "f"},
-	"running":     {nerd: "", ascii: "~"},
-	"done":        {nerd: "", ascii: "OK"},
-	"failed":      {nerd: "", ascii: "x"},
-	"idle":        {nerd: "", ascii: "."},
-	"chevron":     {nerd: "›", ascii: ">"},
-	"expanded":    {nerd: "˅", ascii: "v"},
-	"bullet":      {nerd: "•", ascii: "*"},
-	"arrow_right": {nerd: "→", ascii: "->"},
-	"arrow_left":  {nerd: "←", ascii: "<-"},
-	"gear":        {nerd: "", ascii: "*"},
-	"search":      {nerd: "", ascii: "?"},
-	"clock":       {nerd: "", ascii: "t"},
-	"lock":        {nerd: "", ascii: "#"},
-	"compact":     {nerd: "", ascii: "><"},
-	"warn":        {nerd: "", ascii: "!"},
-}
-
-// Footer keycaps are ALWAYS ASCII, on purpose — they never consult the
-// nerd_fonts flag. Symbols like ⏎ (U+23CE) and ↹ (U+21B9) are generic
-// Unicode, not Nerd Font glyphs, and the default console fonts on
-// Windows (Consolas, Lucida Console) lack them, so they render as tofu
-// boxes (this was issue #1: the "resume" shortcut in /session). Plain
-// words read on every terminal regardless of the user's font.
+// Footer keycaps are ASCII words on purpose: symbols like the return
+// and tab arrows render as tofu boxes on the default Windows console
+// fonts (issue #1: the "resume" shortcut in /session). Plain words
+// read on every terminal regardless of the user's font.
 const (
-	keyNav   = "[up/dn]" // ↑/↓ selection / scroll
-	keyEnter = "[enter]" // ⏎ primary action
-	keyTab   = "[tab]"   // ↹ completion
+	keyNav   = "[up/dn]" // selection / scroll
+	keyEnter = "[enter]" // primary action
+	keyTab   = "[tab]"   // completion
 )
 
 // Theme: the single object every component receives
 
-// Theme is the runtime view of the palette + glyph configuration. The
-// palette is fixed (Canarias); only the Nerd-Font flag varies, set
-// once at construction via NewTheme.
+// Theme is the runtime view of the palette and the glyph set. Both
+// are fixed: the Canarias accent is the one look baifo has, and the
+// glyphs are the pure ASCII set above.
 type Theme struct {
-	Accent      Accent
-	UseNerdFont bool
+	Accent Accent
 }
 
-// NewTheme builds a Theme from the user's preferences. The accent is
-// NewTheme builds a Theme from the user's preferences. The palette is
-// fixed (the Canarias accent); the only preference is whether to use
-// Nerd Font glyphs.
-func NewTheme(useNerdFont bool) Theme {
-	return Theme{
-		Accent:      canariasAccent,
-		UseNerdFont: useNerdFont,
-	}
+// NewTheme returns the one and only theme.
+func NewTheme() Theme {
+	return Theme{Accent: canariasAccent}
 }
 
-// Glyph returns the glyph for name, picking the right variant for the
-// active font mode. Unknown names return "?" so a missing entry is
-// visible during development without breaking the layout.
+// Glyph returns the glyph for name. Unknown names return "?" so a
+// missing entry is visible during development without breaking the
+// layout.
 func (t Theme) Glyph(name string) string {
 	g, ok := glyphs[name]
 	if !ok {
 		return "?"
 	}
-	if t.UseNerdFont {
-		return g.nerd
-	}
-	return g.ascii
+	return g
 }
 
 // Styles

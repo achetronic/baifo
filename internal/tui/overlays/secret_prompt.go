@@ -79,7 +79,7 @@ func NewSecretPrompt(seedName string) *SecretPrompt {
 	value.Placeholder = "secret value"
 	value.Prompt = "value: "
 	value.EchoMode = textinput.EchoPassword
-	value.EchoCharacter = '•'
+	value.EchoCharacter = '*'
 	value.CharLimit = 4096
 	value.SetWidth(40)
 

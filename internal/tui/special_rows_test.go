@@ -17,7 +17,7 @@ func TestRefreshGuard_NoticeCarriesSummary(t *testing.T) {
 	f := &fakeFacade{guard: facade.ContextGuardStatus{
 		Enabled: true, Strategy: "threshold", Percent: 95, Fingerprint: "100:42",
 	}}
-	m := NewModel(f, false, "v0")
+	m := NewModel(f, "v0")
 	m.splash = false
 
 	m.refreshGuard(false) // seed
@@ -42,7 +42,7 @@ func TestRefreshGuard_NoticeCarriesSummary(t *testing.T) {
 // styling) rather than being merged into the root reply text.
 func TestAgentErrorChunkRendersAsSpecialRow(t *testing.T) {
 	f := &fakeFacade{}
-	m := NewModel(f, false, "v0")
+	m := NewModel(f, "v0")
 	m.splash = false
 
 	updated, _ := m.handleAgentChunk(agentChunkMsg{
@@ -67,7 +67,7 @@ func TestAgentErrorChunkRendersAsSpecialRow(t *testing.T) {
 // header band path) at a realistic width.
 func TestAgentErrorAndNoticeRenderWithoutBox(t *testing.T) {
 	f := &fakeFacade{}
-	m := NewModel(f, false, "v0")
+	m := NewModel(f, "v0")
 	m.splash = false
 	m.chat.SetSize(80, 24)
 
@@ -87,7 +87,7 @@ func TestAgentErrorAndNoticeRenderWithoutBox(t *testing.T) {
 // drops the special rows straight into the transcript.
 func TestDebugCommandInjectsSpecialRows(t *testing.T) {
 	f := &fakeFacade{}
-	m := NewModel(f, false, "v0")
+	m := NewModel(f, "v0")
 	m.splash = false
 
 	res := m.handleDebugCommand([]string{"special"})

@@ -97,12 +97,6 @@ guardrails:
   # send back, the same way the built-in filesystem tools already do.
   # (Do not set this field; the loader ignores unknown keys.)
 
-# Theme
-# The colour palette is fixed (the Canarias theme) and not configurable.
-theme:
-  nerd_fonts: true           # if your terminal font lacks Nerd Font
-                             # glyphs, set false and they degrade to ASCII
-
 # A2A server
 # Exposes the root agent over the Agent-to-Agent protocol.
 a2a:

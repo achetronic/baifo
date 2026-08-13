@@ -766,7 +766,7 @@ func (m *Model) handleSecretCommand(ctx context.Context, args []string) slashRes
 		if !m.facade.SecretsEncrypted() {
 			// Surface the plaintext warning as a chat row alongside the
 			// overlay; the overlay itself only lists names.
-			res.systemMessage = "⚠ secrets are stored in PLAINTEXT (no encryption_key in baifo.yaml).\n" +
+			res.systemMessage = "! secrets are stored in PLAINTEXT (no encryption_key in baifo.yaml).\n" +
 				"   Set encryption_key and run `/secret encode` to encrypt them at rest."
 		}
 		return res

@@ -265,12 +265,12 @@ func renderPaletteRow(theme Theme, item paletteItem, query string, selected bool
 	rail := "  "
 	if selected {
 		bg = colorBGFocus
-		// "▍" + space — same selection marker used in the chat
+		// filled half block + space: same selection marker used in the chat
 		// list. Keeps the visual language consistent.
 		rail = lipgloss.NewStyle().
 			Foreground(theme.Accent.Primary).
 			Background(bg).
-			Render("▍") + lipgloss.NewStyle().Background(bg).Render(" ")
+			Render("▌") + lipgloss.NewStyle().Background(bg).Render(" ")
 	} else {
 		rail = lipgloss.NewStyle().Background(bg).Render(rail)
 	}

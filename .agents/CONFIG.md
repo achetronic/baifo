@@ -53,11 +53,6 @@ guardrails:
     enabled: false           # OPT-IN: default false when absent
     max_chars: 30000         # per-part cap; 0 = default (30000)
 
-# Theme
-theme:
-  nerd_fonts: true         # set to false if your terminal font has no Nerd Font
-                           # glyphs; they degrade to ASCII. No code default (false
-                           # when omitted); set true explicitly when your font supports it.
 
 # A2A server
 a2a:
@@ -314,8 +309,6 @@ external (HTTP / stdio) MCPs, which have no producer-side output caps unlike
 the built-in `filesystem` MCP. Do not set this key; the loader ignores
 unknown YAML fields.
 
-- `theme.nerd_fonts`, when `false`, glyphs degrade to ASCII. The colour
-  palette is fixed (Canarias) and has no config knob; see `TUI_DESIGN.md`.
 - `a2a.enabled`, default `false`. When `true`, A2A is hosted by both
   `baifo server` (headless) and the interactive TUI (in-process, on
   boot). `baifo server` refuses to start when it is `false`.

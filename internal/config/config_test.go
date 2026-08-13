@@ -20,21 +20,6 @@ func writeYAML(t *testing.T, body string) string {
 	return path
 }
 
-func TestLoadParsesYAMLAndAppliesDefaults(t *testing.T) {
-	path := writeYAML(t, `
-theme:
-  nerd_fonts: true
-`)
-	cfg, err := Load(path)
-	if err != nil {
-		t.Fatalf("Load: %v", err)
-	}
-
-	if !cfg.Theme.NerdFonts {
-		t.Errorf("theme.nerd_fonts: got %v, want true", cfg.Theme.NerdFonts)
-	}
-}
-
 func TestLoadAppliesDefaultsOnEmptyFile(t *testing.T) {
 	path := writeYAML(t, "{}")
 	cfg, err := Load(path)

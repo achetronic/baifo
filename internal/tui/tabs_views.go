@@ -70,15 +70,15 @@ func renderWorkers(theme Theme, workers []facade.WorkerInfo, selected int, confi
 func workerMarker(status string) (glyph, kind string) {
 	switch status {
 	case "running":
-		return "●", "warning"
+		return "*", "warning"
 	case "done":
-		return "●", "ok"
+		return "*", "ok"
 	case "failed", "killed":
-		return "●", "error"
+		return "*", "error"
 	case "idle":
-		return "○", ""
+		return "o", ""
 	}
-	return "○", ""
+	return "o", ""
 }
 
 // formatWorkerRow is gone — the row is now composed by renderList
@@ -118,7 +118,7 @@ func renderSessions(theme Theme, sessions []facade.SessionInfo, activeID string,
 			MetaLines:  meta,
 		}
 		if s.ID == activeID {
-			it.MarkerGlyph = "●"
+			it.MarkerGlyph = "*"
 			it.MarkerKind = "ok"
 		}
 		items = append(items, it)

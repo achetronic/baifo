@@ -30,7 +30,7 @@ func rootRows(msgs []Message) []Message {
 // root is streaming must NOT split the reply. After the notice, more
 // text plus the final replace artifact must land in the SAME bubble.
 func TestStream_LifecycleNoticeMidStreamNoSplit(t *testing.T) {
-	m := NewModel(&fakeFacade{}, false, "v0")
+	m := NewModel(&fakeFacade{}, "v0")
 	m.splash = false
 
 	// First streamed chunk opens the reply bubble.
@@ -71,7 +71,7 @@ func TestStream_LifecycleNoticeMidStreamNoSplit(t *testing.T) {
 // real semantic break in the reply), while the text before keeps its
 // own bubble intact.
 func TestStream_ToolCallMidStreamSplitsBubble(t *testing.T) {
-	m := NewModel(&fakeFacade{}, false, "v0")
+	m := NewModel(&fakeFacade{}, "v0")
 	m.splash = false
 
 	cur, _ := m.handleAgentChunk(agentChunkMsg{text: "Before tool"})
@@ -100,7 +100,7 @@ func TestStream_ToolCallMidStreamSplitsBubble(t *testing.T) {
 // get distinct StreamIDs so a second reply never coalesces into the
 // first.
 func TestStream_SeparateTurnsSeparateBubbles(t *testing.T) {
-	m := NewModel(&fakeFacade{}, false, "v0")
+	m := NewModel(&fakeFacade{}, "v0")
 	m.splash = false
 
 	cur, _ := m.handleAgentChunk(agentChunkMsg{text: "Turn one"})

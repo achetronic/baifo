@@ -13,7 +13,7 @@ import "testing"
 // full text exactly once — not the last delta with the whole reply
 // concatenated onto it.
 func TestStreamingDeltasThenAggregateNoDuplication(t *testing.T) {
-	m := NewModel(&fakeFacade{}, false, "v0")
+	m := NewModel(&fakeFacade{}, "v0")
 	m.splash = false
 
 	// Seed a user row so the root reply lands at index 1, mirroring a

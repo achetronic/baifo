@@ -92,7 +92,7 @@ func (m Model) renderHeader() string {
 	title := m.title
 	mark := "  "
 	if m.dirty {
-		mark = " ●"
+		mark = " *"
 	}
 	width := m.width
 	if width <= 0 {
@@ -136,7 +136,7 @@ func (m Model) renderErrors() string {
 		if i > 0 {
 			b.WriteByte('\n')
 		}
-		b.WriteString(m.styles.ErrorLine.Render("⚠ " + err.Error()))
+		b.WriteString(m.styles.ErrorLine.Render("! " + err.Error()))
 	}
 	return b.String()
 }

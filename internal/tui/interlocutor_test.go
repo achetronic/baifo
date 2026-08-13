@@ -56,7 +56,7 @@ func TestSwitchInterlocutor_HydratesHistoryAndSetsActive(t *testing.T) {
 			{Kind: facade.WorkerStreamStatus, StatusChange: "running"},
 		},
 	}
-	m := NewModel(facade, false, "v0")
+	m := NewModel(facade, "v0")
 	m.splash = false
 	// Seed the root chat with one message so we can verify it gets
 	// preserved across the switch.
@@ -91,7 +91,7 @@ func TestSwitchBackRestoresOriginalChat(t *testing.T) {
 	facade := &spyFacade{
 		workers: []facade.WorkerInfo{{ID: "w_x", Name: "x"}},
 	}
-	m := NewModel(facade, false, "v0")
+	m := NewModel(facade, "v0")
 	m.splash = false
 	m.messages = []Message{{Kind: MessageRoot, Text: "kept"}}
 
@@ -136,7 +136,7 @@ func TestWorkersTab_KillShortcutAsksConfirmThenKills(t *testing.T) {
 	facade := &killCollectFacade{
 		spyFacade: spyFacade{workers: []facade.WorkerInfo{{ID: "w_a", Name: "a"}}},
 	}
-	m := NewModel(facade, false, "v0")
+	m := NewModel(facade, "v0")
 	m.splash = false
 	m.workersOpen = true
 	m.workers = facade.workers
@@ -174,7 +174,7 @@ func TestWorkersTab_CollectShortcutAsksConfirmThenCollects(t *testing.T) {
 		spyFacade:  spyFacade{workers: []facade.WorkerInfo{{ID: "w_b", Name: "b"}}},
 		collectOut: "all done",
 	}
-	m := NewModel(facade, false, "v0")
+	m := NewModel(facade, "v0")
 	m.splash = false
 	m.workersOpen = true
 	m.workers = facade.workers
@@ -325,7 +325,7 @@ func TestHandleWorkerStream_LiveChunksCoalesce(t *testing.T) {
 	spy := &spyFacade{
 		workers: []facade.WorkerInfo{{ID: "w_live", Name: "live"}},
 	}
-	m := NewModel(spy, false, "v0")
+	m := NewModel(spy, "v0")
 	m.splash = false
 	// Switch to the worker so m.activeInterlocutor == "w_live".
 	next, _ := m.switchInterlocutor("w_live")
@@ -364,7 +364,7 @@ func TestAttachWorkerStream_HistoryCoalesced(t *testing.T) {
 			{Kind: facade.WorkerStreamText, Text: "final"},
 		},
 	}
-	m := NewModel(spy, false, "v0")
+	m := NewModel(spy, "v0")
 	m.splash = false
 	next, _ := m.switchInterlocutor("w_hist")
 	nm := next.(Model)
@@ -391,7 +391,7 @@ func TestComposerSubmitRoutesToWorkerWhenActive(t *testing.T) {
 	facade := &spyFacade{
 		workers: []facade.WorkerInfo{{ID: "w_y", Name: "y"}},
 	}
-	m := NewModel(facade, false, "v0")
+	m := NewModel(facade, "v0")
 	m.splash = false
 	next, _ := m.switchInterlocutor("w_y")
 	nm := next.(Model)

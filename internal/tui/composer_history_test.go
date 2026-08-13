@@ -15,7 +15,7 @@ import (
 // and focus on the composer, ready for recall.
 func seededHistoryModel(t *testing.T) Model {
 	t.Helper()
-	m := NewModel(&fakeFacade{}, false, "v0")
+	m := NewModel(&fakeFacade{}, "v0")
 	m.splash = false
 	m.messages = []Message{
 		{Kind: MessageUser, Time: time.Now(), Text: "first"},
@@ -96,7 +96,7 @@ func TestHistoryRecallCtrlDownWithoutBrowsingIsNoop(t *testing.T) {
 // TestHistoryRecallEmptyHistoryNoop confirms recall is inert when no
 // user messages exist yet.
 func TestHistoryRecallEmptyHistoryNoop(t *testing.T) {
-	m := NewModel(&fakeFacade{}, false, "v0")
+	m := NewModel(&fakeFacade{}, "v0")
 	m.splash = false
 	m.composer.ta.SetValue("hi")
 	m = driveModel(t, m, ctrlUp()).(Model)
@@ -131,7 +131,7 @@ func TestHistoryRecallResetByEditing(t *testing.T) {
 // Ctrl+Left / Ctrl+Right for word-wise cursor motion (alongside the
 // Alt defaults), so the user gets the conventional shortcut.
 func TestWordMotionBindingsIncludeCtrlArrows(t *testing.T) {
-	c := newComposer(NewTheme(false))
+	c := newComposer(NewTheme())
 	if !keyBindingHasKey(c.ta.KeyMap.WordBackward.Keys(), "ctrl+left") {
 		t.Errorf("WordBackward should bind ctrl+left, got %v", c.ta.KeyMap.WordBackward.Keys())
 	}

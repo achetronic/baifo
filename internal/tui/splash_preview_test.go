@@ -21,7 +21,7 @@ func TestSplashLargeLogoIsTallerThanSmall(t *testing.T) {
 // TestRenderSplashPicksLargeAtWideWidth confirms the large logo is
 // used when the terminal is wide enough.
 func TestRenderSplashPicksLargeAtWideWidth(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	out := renderSplash(theme, 80)
 	if !strings.Contains(out, strings.TrimSpace(splashLogoLarge[0])) {
 		t.Errorf("renderSplash(80) did not include large logo first row\n%s", out)
@@ -31,7 +31,7 @@ func TestRenderSplashPicksLargeAtWideWidth(t *testing.T) {
 // TestRenderSplashFallsBackToSmallAtMediumWidth checks that the
 // small logo is still used for terminals between 24 and 35 cols.
 func TestRenderSplashFallsBackToSmallAtMediumWidth(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	out := renderSplash(theme, 30)
 	if !strings.Contains(out, strings.TrimSpace(splashLogoSmall[0])) {
 		t.Errorf("renderSplash(30) did not include small logo first row\n%s", out)
@@ -41,7 +41,7 @@ func TestRenderSplashFallsBackToSmallAtMediumWidth(t *testing.T) {
 // TestRenderSplashFallsBackToPlainAtTinyWidth checks that very narrow
 // terminals get the plain \"baifo\" fallback (no logo glyphs).
 func TestRenderSplashFallsBackToPlainAtTinyWidth(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	out := renderSplash(theme, 10)
 	if strings.Contains(out, "█") {
 		t.Errorf("renderSplash(10) should NOT include block glyphs\n%s", out)

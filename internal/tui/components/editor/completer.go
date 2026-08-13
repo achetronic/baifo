@@ -289,7 +289,7 @@ func renderCompleterRow(text string, selected bool, width int, st Styles) string
 			Foreground(st.CompleterAccent).
 			Background(bg).
 			Bold(true).
-			Render("▍ ")
+			Render("▌ ")
 		rowStyle = rowStyle.Bold(true)
 	}
 	// Manual truncation so the row width matches `width` even
