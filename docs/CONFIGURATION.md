@@ -481,7 +481,7 @@ The `references/`, `assets/`, and `scripts/` subdirectories are optional and exp
 
 ## Full reference
 
-The two complete annotated files below show every field the loader understands; use them as a copy-paste starting point. The first-run wizard writes a subset: the `baifo.yaml` is reproduced as-is (minus any provider you configure), and in `agents.yaml` it writes only the root agent. The optional `utility` entry shown below is **not** created by the wizard — add it yourself to route internal chores to a cheaper model.
+The two complete annotated files below show every field the loader understands; use them as a copy-paste starting point. Empty fields appear as `""` placeholders; filled-in values never need quotes. The first-run wizard writes a subset: the `baifo.yaml` is reproduced as-is (minus any provider you configure), and in `agents.yaml` it writes only the root agent. The optional `utility` entry shown below is **not** created by the wizard — add it yourself to route internal chores to a cheaper model.
 
 ### `baifo.yaml`
 
