@@ -238,7 +238,7 @@ func TestPaletteState_MoveWraps(t *testing.T) {
 func TestRenderPalette_NonEmpty(t *testing.T) {
 	st := paletteState{}
 	st.refresh("/")
-	theme := NewTheme(false)
+	theme := NewTheme()
 	out := renderPalette(theme, st, 120)
 	if out == "" {
 		t.Fatal("renderPalette returned empty string for visible popup")

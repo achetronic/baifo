@@ -14,7 +14,7 @@ import (
 // suppressed entirely when the guard is off, so the footer carries no
 // permanently-inactive state.
 func TestChipContextGuard_HiddenWhenDisabled(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	if got := chipContextGuard(theme, false, "threshold", 0); got != "" {
 		t.Errorf("disabled guard should render no chip, got %q", got)
 	}
@@ -23,7 +23,7 @@ func TestChipContextGuard_HiddenWhenDisabled(t *testing.T) {
 // TestChipContextGuard_ShowsStrategyAndPercent verifies the chip body
 // carries the strategy label and the percentage when the guard is on.
 func TestChipContextGuard_ShowsStrategyAndPercent(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	got := chipContextGuard(theme, true, "threshold", 42)
 	if !strings.Contains(got, "42%") {
 		t.Errorf("chip should show the percentage, got %q", got)
@@ -60,7 +60,7 @@ func TestGuardSeverity_Escalates(t *testing.T) {
 // TestBuildFooterChips_IncludesGuardWhenEnabled verifies the gauge chip
 // is wired into the footer chip set when the guard is enabled.
 func TestBuildFooterChips_IncludesGuardWhenEnabled(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	chips := buildFooterChips(theme, statusBarData{
 		Model:         "p/m",
 		GuardEnabled:  true,
@@ -80,7 +80,7 @@ func TestRefreshGuard_SeedDoesNotFireNotice(t *testing.T) {
 	f := &fakeFacade{guard: facade.ContextGuardStatus{
 		Enabled: true, Strategy: "threshold", Percent: 50, Fingerprint: "100:42",
 	}}
-	m := NewModel(f, false, "v0")
+	m := NewModel(f, "v0")
 	m.splash = false
 
 	m.refreshGuard(false)
@@ -99,7 +99,7 @@ func TestRefreshGuard_FiresNoticeOnNewCompaction(t *testing.T) {
 	f := &fakeFacade{guard: facade.ContextGuardStatus{
 		Enabled: true, Strategy: "threshold", Percent: 95, Fingerprint: "100:42",
 	}}
-	m := NewModel(f, false, "v0")
+	m := NewModel(f, "v0")
 	m.splash = false
 
 	m.refreshGuard(false) // seed
@@ -126,7 +126,7 @@ func TestRefreshGuard_FiresNoticeOnNewCompaction(t *testing.T) {
 // while a worker chat is active (the guard only tracks the root).
 func TestRefreshGuard_ClearedForWorkerChat(t *testing.T) {
 	f := &fakeFacade{guard: facade.ContextGuardStatus{Enabled: true, Percent: 80}}
-	m := NewModel(f, false, "v0")
+	m := NewModel(f, "v0")
 	m.splash = false
 	m.activeInterlocutor = "worker-123"
 

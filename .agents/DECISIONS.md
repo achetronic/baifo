@@ -241,16 +241,14 @@ Mitigation lives at the filesystem MCP / sandbox layer, not here.
 
 ## #11a, Fixed Canarias theme, no user-selectable accent
 
-**Decision.** The palette is **fixed and not user-configurable**. The
-`theme.accent` config key is **removed** (no longer in `ThemeConfig`,
-no default, not parsed). `internal/tui` exposes a single `canariasAccent`
-and `NewTheme(useNerdFont bool)` takes no accent argument.
+**Decision.** The theme is part of baifo's identity and is not
+user-configurable. `internal/tui` exposes a single `canariasAccent`
+and `NewTheme()` takes no arguments. The glyph set is pure ASCII
+(issue #10) plus one CP437 half block for the selection rail;
+everything in it renders on every terminal.
 
-The only remaining `theme` knob is `theme.nerd_fonts`, which is a
-terminal capability (glyphs vs ASCII), not an aesthetic choice.
-
-**Status.** In force. See `internal/tui/theme.go`, `internal/config`
-(`ThemeConfig`), and the swatch board at `docs/canarias-palette.html`.
+**Status.** In force. See `internal/tui/theme.go` and the swatch board
+at `docs/canarias-palette.html`.
 
 ## #12, A2A: root only in v1
 

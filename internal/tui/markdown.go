@@ -285,10 +285,10 @@ func canariasMarkdownStyle() ansi.StyleConfig {
 	s.Document.Color = sptr(mdLimeWash)
 
 	// Headings: sun orange, bold, no garish background box on H1.
-	// A small "▰ " prefix on H1 gives it identity without shouting.
+	// A "# " prefix on H1 gives it identity without shouting.
 	s.Heading.Color = sptr(mdSun)
 	s.Heading.Bold = bptr(true)
-	s.H1.Prefix = "▰ "
+	s.H1.Prefix = "# "
 	s.H1.Suffix = ""
 	s.H1.Color = sptr(mdSun)
 	s.H1.BackgroundColor = nil // drop the violet block from the dark theme
@@ -314,7 +314,7 @@ func canariasMarkdownStyle() ansi.StyleConfig {
 	s.LinkText.Bold = bptr(true)
 
 	// Lists: sun bullets / enumerators.
-	s.Item.BlockPrefix = "• "
+	s.Item.BlockPrefix = "- "
 	s.Item.Color = sptr(mdSun)
 	s.Enumeration.Color = sptr(mdSun)
 

@@ -158,7 +158,7 @@ func TestFactsOverlayEnterOpensEditor(t *testing.T) {
 // content first line as label, meta row with id, and the
 // destructive prompt when a delete is pending.
 func TestRenderFactsShowsEntriesAndConfirm(t *testing.T) {
-	theme := NewTheme(false)
+	theme := NewTheme()
 	back := strings.Repeat(strings.Repeat(" ", 100)+"\n", 39) + strings.Repeat(" ", 100)
 
 	out := renderFacts(theme, twoFacts(), 0, 0, back, 100, 40)

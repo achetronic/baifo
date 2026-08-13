@@ -327,7 +327,7 @@ func joinChips(chips []string, sep string) string {
 
 // chipCopied renders the temporary clipboard copy confirmation chip.
 func chipCopied(theme Theme) string {
-	return chip("✓", "clipboard", "copied!", chipStyleSeverity("success"))
+	return chip("+", "clipboard", "copied!", chipStyleSeverity("success"))
 }
 
 // chipInterlocutor renders the chip that shows who the chat is
@@ -419,7 +419,7 @@ func chipWorkers(theme Theme, n int) string {
 func chipA2A(theme Theme, status string) string {
 	switch status {
 	case "ok", "insecure":
-		return chip("●", "a2a", status, chipStyleSeverity(a2aSeverity(status)))
+		return chip("*", "a2a", status, chipStyleSeverity(a2aSeverity(status)))
 	default:
 		return ""
 	}

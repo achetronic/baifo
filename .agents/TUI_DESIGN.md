@@ -39,10 +39,9 @@ accent colour.
 
 Single dark theme with a fixed **Canarias** identity, black volcanic
 picón sand backgrounds, lime-wash off-white text, canarian clay borders,
-and sun orange / lava red as the warm accents. There is **no theme
-system**: the accent is not user-overridable and the `theme.accent`
-config key has been removed (`NewTheme` takes only the Nerd-Font flag;
-the sole accent is `canariasAccent`). Hex values are
+and sun orange / lava red as the warm accents. The palette is part
+of baifo's identity: `NewTheme()` takes no arguments and the sole
+accent is `canariasAccent`. Hex values are
 exact; lipgloss receives them as `lipgloss.Color("#xxxxxx")`. A standalone
 swatch board lives at `docs/canarias-palette.html`.
 
@@ -98,35 +97,37 @@ so a quiet colour fits.
 
 ## Glyphs
 
-Nerd-font primary set with ASCII fallback. Loaded once at startup
-based on `theme.nerd_fonts`. Components must use `theme.Glyph(name)`
-and never hardcode.
+One glyph set, pure ASCII everywhere: it renders on every terminal
+with every font. The one companion character is the selection rail
+(▌), a CP437 half block chosen at full cell height so stacked
+rows read as one solid bar instead of a broken pipe.
+Components must use `theme.Glyph(name)` and never hardcode a glyph.
 
-| Name | Nerd | ASCII |
-|---|---|---|
-| `root` |  | `R` |
-| `static` |  | `S` |
-| `dynamic` |  | `D` |
-| `skill` |  | `k` |
-| `mcp` |  | `m` |
-| `provider` |  | `p` |
-| `secret` |  | `*` |
-| `running` |  | `~` |
-| `done` |  | `OK` |
-| `failed` |  | `x` |
-| `idle` |  | `.` |
-| `chevron` | `›` | `>` |
-| `bullet` | `•` | `*` |
-| `arrow_right` | `→` | `->` |
-| `arrow_left` | `←` | `<-` |
-| `gear` |  | `*` |
-| `search` |  | `?` |
-| `clock` |  | `t` |
-| `lock` |  | `#` |
-| `fact` |  | `f` |
-| `expanded` | `˅` | `v` |
-| `compact` |  | `><` |
-| `warn` |  | `!` |
+| Name | Glyph |
+|---|---|
+| `root` | `R` |
+| `static` | `S` |
+| `dynamic` | `D` |
+| `skill` | `k` |
+| `mcp` | `m` |
+| `provider` | `p` |
+| `secret` | `*` |
+| `running` | `~` |
+| `done` | `OK` |
+| `failed` | `x` |
+| `idle` | `.` |
+| `chevron` | `>` |
+| `bullet` | `*` |
+| `arrow_right` | `->` |
+| `arrow_left` | `<-` |
+| `gear` | `*` |
+| `search` | `?` |
+| `clock` | `t` |
+| `lock` | `#` |
+| `fact` | `f` |
+| `expanded` | `v` |
+| `compact` | `><` |
+| `warn` | `!` |
 
 ## Spacing & borders
 

@@ -14,14 +14,13 @@ import (
 	_ "github.com/achetronic/baifo/internal/providers/allproviders"
 )
 
-// minimalYAML is the smallest baifo.yaml that boots an App: just the
-// theme. The root agent lives in agents.yaml under the unified
+// minimalYAML is the smallest baifo.yaml that boots an App: a
+// version line and nothing else. The root agent lives in agents.yaml under the unified
 // model, written separately by writeAgents below. With no providers
 // configured the App still boots in a degraded state — that's fine
 // for testing ReloadFromDisk semantics.
 const minimalYAML = `
-theme:
-  nerd_fonts: false
+version: 1
 `
 
 // minimalAgentsYAML defines a single root agent so RootName() has

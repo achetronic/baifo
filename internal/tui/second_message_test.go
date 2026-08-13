@@ -16,7 +16,7 @@ import (
 // and asserts both streams reach the final 'done' state.
 func TestSendingTwoMessagesInARowDoesNotDeadlock(t *testing.T) {
 	facade := &fakeFacade{reply: "first"}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 
 	// First message.

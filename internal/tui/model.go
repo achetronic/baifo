@@ -289,8 +289,8 @@ type Model struct {
 // NewModel constructs the top-level Model. The Facade may be nil so
 // the TUI can boot in an error-state when the app couldn't (e.g. no
 // root agent configured).
-func NewModel(facade facade.Facade, useNerdFont bool, version string) Model {
-	theme := NewTheme(useNerdFont)
+func NewModel(facade facade.Facade, version string) Model {
+	theme := NewTheme()
 	sp := spinner.New(spinner.WithSpinner(spinner.MiniDot))
 	sp.Style = theme.AccentText()
 	return Model{
@@ -314,8 +314,8 @@ func NewModel(facade facade.Facade, useNerdFont bool, version string) Model {
 
 // NewModelWithAutoScroll is like NewModel but lets the caller seed
 // the chat's auto-scroll behaviour and keep-tools-expanded behaviour.
-func NewModelWithAutoScroll(facade facade.Facade, useNerdFont bool, version string, autoScroll bool, keepToolsExpanded bool) Model {
-	m := NewModel(facade, useNerdFont, version)
+func NewModelWithAutoScroll(facade facade.Facade, version string, autoScroll bool, keepToolsExpanded bool) Model {
+	m := NewModel(facade, version)
 	m.chat = newChatView(m.theme, autoScroll)
 	m.keepToolsExpanded = keepToolsExpanded
 	return m

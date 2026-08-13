@@ -110,8 +110,6 @@ providers:
   - name: gemini
     type: gemini
     api_key: ${secret:GEMINI_API_KEY}
-theme:
-  nerd_fonts: false
 `)
 	if err := a.ReloadFromDisk(context.Background()); err != nil {
 		t.Fatalf("reload after declaring the provider: %v", err)

@@ -74,7 +74,7 @@ func runTUI(dir string) exitCode {
 	}
 	defer stopServer()
 
-	model := tui.NewModelWithAutoScroll(a, cfg.Theme.NerdFonts, version.Tag(), cfg.Runtime.ChatAutoScrollEnabled(), cfg.Runtime.ChatKeepToolsExpandedEnabled())
+	model := tui.NewModelWithAutoScroll(a, version.Tag(), cfg.Runtime.ChatAutoScrollEnabled(), cfg.Runtime.ChatKeepToolsExpandedEnabled())
 	p := tea.NewProgram(model)
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "baifo: tui: %v\n", err)

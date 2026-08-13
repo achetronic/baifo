@@ -24,7 +24,6 @@ type Config struct {
 	EncryptionKey string           `yaml:"encryption_key"`
 	Runtime       RuntimeConfig    `yaml:"runtime"`
 	Guardrails    GuardrailsConfig `yaml:"guardrails"`
-	Theme         ThemeConfig      `yaml:"theme"`
 	A2A           A2AConfig        `yaml:"a2a"`
 	Providers     []ProviderEntry  `yaml:"providers"`
 	MCPs          []MCPEntry       `yaml:"mcps"`
@@ -230,14 +229,6 @@ func (r RuntimeConfig) ChatKeepToolsExpandedEnabled() bool {
 		return false
 	}
 	return *r.ChatKeepToolsExpanded
-}
-
-// ThemeConfig controls terminal-capability rendering options. The
-// colour palette itself is fixed (the Canarias theme) and is NOT
-// user-configurable; the only knob here is whether the terminal can
-// render Nerd Font glyphs.
-type ThemeConfig struct {
-	NerdFonts bool `yaml:"nerd_fonts"`
 }
 
 // A2AConfig describes the A2A server endpoint.

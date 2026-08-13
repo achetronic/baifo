@@ -190,7 +190,7 @@ func drainStream(t *testing.T, m tea.Model, cmd tea.Cmd) tea.Model {
 }
 
 func TestModelInitReturnsSplashTickCommand(t *testing.T) {
-	model := NewModel(&fakeFacade{}, false, "v0")
+	model := NewModel(&fakeFacade{}, "v0")
 	cmd := model.Init()
 	if cmd == nil {
 		t.Fatal("Init should return the splash-dismiss tick")
@@ -198,7 +198,7 @@ func TestModelInitReturnsSplashTickCommand(t *testing.T) {
 }
 
 func TestModelDismissesSplashOnDoneMessage(t *testing.T) {
-	model := NewModel(&fakeFacade{}, false, "v0")
+	model := NewModel(&fakeFacade{}, "v0")
 	m := driveModel(t, model, splashDoneMsg{}).(Model)
 	if m.splash {
 		t.Error("splash should be dismissed after splashDoneMsg")
@@ -206,7 +206,7 @@ func TestModelDismissesSplashOnDoneMessage(t *testing.T) {
 }
 
 func TestModelHelpToggle(t *testing.T) {
-	model := NewModel(&fakeFacade{}, false, "v0")
+	model := NewModel(&fakeFacade{}, "v0")
 	m := driveModel(t, model, tea.KeyPressMsg{Code: '/', Mod: tea.ModCtrl}).(Model)
 	if !m.helpOpen {
 		t.Error("ctrl+/ should open help overlay")
@@ -219,7 +219,7 @@ func TestModelHelpToggle(t *testing.T) {
 
 func TestSendingMessageProducesUserAndRootRows(t *testing.T) {
 	facade := &fakeFacade{reply: "hi back"}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false // skip splash for the test
 
 	// Type some text into the composer.
@@ -250,7 +250,7 @@ func TestSendingMessageProducesUserAndRootRows(t *testing.T) {
 }
 
 func TestSendingMessageWithoutFacadeShowsError(t *testing.T) {
-	model := NewModel(nil, false, "v0")
+	model := NewModel(nil, "v0")
 	model.splash = false
 	model.composer.ta.SetValue("anything")
 
@@ -266,7 +266,7 @@ func TestSendingMessageWithoutFacadeShowsError(t *testing.T) {
 
 func TestStreamingErrorIsSurfaced(t *testing.T) {
 	facade := &fakeFacade{err: errors.New("boom")}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 	model.composer.ta.SetValue("hi")
 
@@ -284,7 +284,7 @@ func TestStreamingErrorIsSurfaced(t *testing.T) {
 
 func TestEscCancelsStreamingWhenActive(t *testing.T) {
 	facade := &fakeFacade{reply: "later"}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 	model.composer.ta.SetValue("hi")
 	m, _ := model.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
@@ -321,7 +321,7 @@ func TestToolCallAndResultRenderAsSeparateMessages(t *testing.T) {
 			}}},
 		},
 	}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 	model.composer.ta.SetValue("go")
 
@@ -379,7 +379,7 @@ var _ = func() any {
 // MouseClickMsg with coordinates that land on the tool row.
 func TestClickOnToolRowExpandsIt(t *testing.T) {
 	facade := &fakeFacade{}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 	// Window large enough to fit a few rows of chat.
 	wsz := tea.WindowSizeMsg{Width: 80, Height: 40}
@@ -443,7 +443,7 @@ func TestClickOnToolRowExpandsIt(t *testing.T) {
 // would reflow under our feet and shift the tool one row.
 func TestClickOnToolRowAfterLongUserMessage(t *testing.T) {
 	facade := &fakeFacade{}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 	// Narrow window so the user message DEFINITELY wraps.
 	wsz := tea.WindowSizeMsg{Width: 40, Height: 40}
@@ -484,7 +484,7 @@ func TestClickOnToolRowAfterLongUserMessage(t *testing.T) {
 // the rendered chat must map back to the right message index.
 func TestClickOnRootMessageAfterLongUserMessage(t *testing.T) {
 	facade := &fakeFacade{}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 	wsz := tea.WindowSizeMsg{Width: 50, Height: 40}
 	mAfterSize, _ := model.Update(wsz)
@@ -526,7 +526,7 @@ func TestClickOnRootMessageAfterLongUserMessage(t *testing.T) {
 // occupied two slice indices but only one visible row.
 func TestArrowDownSkipsHiddenToolResults(t *testing.T) {
 	facade := &fakeFacade{}
-	model := NewModel(facade, false, "v0")
+	model := NewModel(facade, "v0")
 	model.splash = false
 	wsz := tea.WindowSizeMsg{Width: 80, Height: 40}
 	mAfterSize, _ := model.Update(wsz)

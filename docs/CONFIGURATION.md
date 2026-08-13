@@ -281,15 +281,6 @@ guardrails:
 
 `trim_oversized_user_text` truncates very large user-role text parts before each model call. This protects the context window when, for example, a resumed session replays enormous command outputs as context. The trim is ephemeral: your session history keeps the full text on disk. `max_chars` sets the per-part character cap; `0` or absent selects the default (30000). The `enabled` flag controls activation.
 
-### Theme
-
-```yaml
-theme:
-  nerd_fonts: true
-```
-
-Set `nerd_fonts: false` if your terminal font lacks Nerd Font glyphs; they degrade to ASCII. The color palette (Canarias) is fixed and not configurable.
-
 ### A2A
 
 The A2A (Agent-to-Agent) server exposes your root agent over the A2A protocol so other systems can drive it programmatically.
@@ -534,10 +525,6 @@ guardrails:
   trim_oversized_user_text:
     enabled: false # set true to activate
     max_chars: 30000 # per-part cap; 0 = default (30000)
-
-# Theme (color palette is fixed, not configurable)
-theme:
-  nerd_fonts: true # false = degrade glyphs to ASCII
 
 # A2A server
 a2a:

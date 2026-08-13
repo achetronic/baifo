@@ -333,7 +333,7 @@ func overlayContentSize(w, h int) (int, int) {
 // listItem is one row in a renderList block. Label is the
 // human-readable text; EntityKind drives the colour through
 // Theme.EntityText (pass "" for neutral text). MarkerGlyph and
-// MarkerKind paint a leading status indicator (e.g. "●" + "ok"
+// MarkerKind paint a leading status indicator (e.g. "*" + "ok"
 // for an active session). Suffix is faint text appended after the
 // label (timestamps, ids, brief counts).
 //
@@ -473,7 +473,7 @@ func renderList(theme Theme, items []listItem, selected int, emptyHint string, m
 		// Cursor column on the first row only.
 		cursor := "  "
 		if i == selected {
-			cursor = theme.AccentText().Render("› ")
+			cursor = theme.AccentText().Render("> ")
 		}
 
 		// Marker column on the first row only.

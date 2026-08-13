@@ -71,7 +71,7 @@ func (r *recordingFacade) DeleteMCPFromDisk(_ context.Context, name string) erro
 
 func newModelWith(t *testing.T, facade facade.Facade) Model {
 	t.Helper()
-	m := NewModel(facade, false, "v0")
+	m := NewModel(facade, "v0")
 	m.splash = false
 	return m
 }

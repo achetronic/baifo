@@ -746,7 +746,7 @@ func (c *chatView) renderMarkdownBody(text string, idx int, force bool) string {
 // every line of the focused message. When the message is not
 // selected, the gutter collapses to spaces of the same width so
 // neighbouring rows stay aligned in the same column.
-const chatSelectionMarker = "▍ "
+const chatSelectionMarker = "▌ "
 
 // applyGutter prepends a left-column gutter to every line of the
 // given block. When selected is true, every line gets the accent
@@ -1137,11 +1137,11 @@ func (c *chatView) toolRowRightParts(call Message, result *Message, state toolCa
 func (c *chatView) toolRowStateGlyph(state toolCardStateKind) string {
 	switch state {
 	case toolCardRunning:
-		return "▸"
+		return ">"
 	case toolCardDone:
-		return "✓"
+		return "+"
 	case toolCardFailed:
-		return "✗"
+		return "x"
 	}
 	return "·"
 }
@@ -1229,7 +1229,7 @@ func (c *chatView) toolRowExpandedSection(label string, m map[string]any, state 
 	}
 
 	var headerStyle lipgloss.Style
-	var prefix string = "◆ "
+	var prefix string = "# "
 	if label == "call" {
 		headerStyle = c.theme.AccentText().Bold(true)
 	} else if label == "result" {
