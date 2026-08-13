@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -228,6 +229,16 @@ const appName = "baifo"
 // TUI uses this to render a friendly "configure a provider first"
 // state instead of crashing.
 var ErrNoRoot = errors.New("no root agent configured")
+
+// ErrRootNotUsable marks buildRoot failures caused by the root's own
+// configuration rather than by a construction failure: the root entry
+// exists and is complete, but it references something baifo cannot
+// resolve yet, like a provider that is not declared in baifo.yaml.
+// Boot and reload stash it on rootBuildErr so the TUI and the chat
+// command print the actual reason, while reload keeps treating the
+// config swap itself as successful: the file on disk is valid, and
+// the fix is the user's next edit.
+var ErrRootNotUsable = errors.New("root agent not usable")
 
 // New constructs an App from a loaded config and the active config dir.
 // All collaborators are built lazily so a partially configured baifo
@@ -483,12 +494,13 @@ func (a *App) buildRoot(ctx context.Context) error {
 	if root == nil || root.LLM.Effective() == "" || root.LLM.Model == "" {
 		return ErrNoRoot
 	}
-	// Soft-fail when the configured provider isn't registered:
-	// the user pointed root.llm.provider at something that
-	// doesn't exist in baifo.yaml. We treat that as "no usable
-	// root" (degraded boot) rather than as a fatal error so the
-	// TUI can still come up and let the user fix the typo
-	// through /agent edit.
+	// The configured provider must be declared in baifo.yaml.
+	// Returning ErrNoRoot here would tell the user "no root
+	// agent configured", which is false: the entry exists and is
+	// flagged, and /agent set-root happily agrees. Report the
+	// real reason instead; boot and reload stash it on
+	// rootBuildErr so it reaches the screen (degraded boot is
+	// preserved, the fix is the user's next edit).
 	known := a.listProvidersLocked()
 	provider := root.LLM.Effective()
 	hasProvider := false
@@ -499,7 +511,12 @@ func (a *App) buildRoot(ctx context.Context) error {
 		}
 	}
 	if !hasProvider {
-		return ErrNoRoot
+		listed := "no providers are declared in baifo.yaml"
+		if len(known) > 0 {
+			listed = "declared providers: " + strings.Join(known, ", ")
+		}
+		return fmt.Errorf("%w: agent %q uses provider %q, which is not declared in baifo.yaml (%s)",
+			ErrRootNotUsable, root.Name, provider, listed)
 	}
 
 	builder := &baifoagent.Builder{
@@ -1284,7 +1301,12 @@ func (a *App) ReloadFromDisk(ctx context.Context) error {
 	default:
 	}
 
-	if buildErr != nil && !errors.Is(buildErr, ErrNoRoot) {
+	// A degraded root (missing entry, incomplete llm, or a
+	// provider the user has not declared yet) does not fail the
+	// reload itself: the config on disk is valid, the reason is
+	// already stashed on rootBuildErr for the next screen. Only
+	// a genuine construction failure propagates.
+	if buildErr != nil && !errors.Is(buildErr, ErrNoRoot) && !errors.Is(buildErr, ErrRootNotUsable) {
 		return fmt.Errorf("rebuild root: %w", buildErr)
 	}
 	return nil
