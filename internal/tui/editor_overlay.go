@@ -131,7 +131,16 @@ func (m Model) openEmbeddedEditor(req openEditorRequest) (tea.Model, tea.Cmd) {
 	m.editorOnSaveKind = req.Kind
 	m.editorFactTargetID = req.FactTargetID
 	m.editorSessionTargetID = req.SessionTargetID
-	return m, nil
+
+	// Ask bubbletea to re-query the terminal size. On Windows the
+	// dimensions captured at startup can be stale, which makes the
+	// editor open wider and taller than the visible console: lines
+	// wrap, the body grows, and the action footer is pushed off the
+	// bottom of the screen (issue #17). The fresh WindowSizeMsg lands
+	// in updateWithEditor, which re-sizes the editor to the real
+	// dimensions. When the cached size is already right, the message
+	// just re-applies it, so this is a no-op in the healthy case.
+	return m, func() tea.Msg { return tea.RequestWindowSize() }
 }
 
 // updateWithEditor is the Update branch taken while the editor
