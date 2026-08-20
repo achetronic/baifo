@@ -6,6 +6,8 @@ package tui
 import (
 	"strings"
 	"testing"
+
+	xansi "github.com/charmbracelet/x/ansi"
 )
 
 // TestMarkdownRendererBasic exercises the cache end-to-end with a
@@ -95,5 +97,98 @@ func TestMarkdownRendererIdenticalInputNeverReRenders(t *testing.T) {
 	c.render("k", "# title\n\nsome **bold** prose, extended", 60, true)
 	if c.renders != renders+1 {
 		t.Fatalf("changed input with force=true must re-render exactly once, got %d", c.renders-renders)
+	}
+}
+
+// problematicMarkdown is distilled from the real transcript that made the
+// chat "go crazy" ( Downloads/DESCUAJE.txt ): a long block quote, inline
+// LaTeX-ish $...$ with braces and carets, a $$...$$ block, accented words,
+// ¿, ×, % and headings. Every construct here was observed to make glamour
+// v0.7.0 emit lines wider than the wrap budget.
+const problematicMarkdown = `## Las tres ideas de la frase
+
+**1. "Cinco puntos de carga normalizados: 10 %, 25 %, 50 %, 75 %, 100 % de $P_{aco}$"**
+
+Esto es solo un truco algebraico para no escribir paréntesis anidados. La ecuación de Sandia solo contiene $(P_{dc} - P_{so})^2$, nunca $P_{dc}$ suelta. Así que llamas $x = P_{dc} - P_{so}$, resuelves la cuadrática en $x$ (con la fórmula de toda la vida), y al final recuperas $P_{dc} = x + P_{so}$.
+
+$$\eta_i = \frac{P_{ac,i}}{P_{dc,i}} \cdot 100$$
+
+Ejemplo: 500 / 523,26 × 100 = 95,55 % (justo el primer número de la Tabla 1).
+
+> Fijas cinco salidas AC (las cargas), resuelves la cuadrática de Sandia para saber qué entrada DC produce cada una, y divides salida entre entrada para obtener cinco eficiencias. Esos cinco puntos son los que luego se ajustan para obtener $k_0, k_1, k_2$. ¿Vale?`
+
+// TestMarkdownRenderNeverExceedsWidth is the regression guard for the
+// "interface goes crazy" report: no line of the rendered output may exceed
+// the wrap budget, because every overflowing line wraps onto an extra
+// terminal row that renderMessages' rowSpans never counted, desyncing
+// selection and scroll. Exercises the cache end-to-end (render()), so the
+// clamp inside it is what makes this pass.
+func TestMarkdownRenderNeverExceedsWidth(t *testing.T) {
+	c := newMarkdownCache()
+	for _, width := range []int{80, 100, 120, 157} {
+		out := c.render("k", problematicMarkdown, width, true)
+		for i, line := range strings.Split(out, "\n") {
+			if w := xansi.StringWidth(line); w > width {
+				t.Errorf("width=%d line %d is %d printable cells (> %d): %q",
+					width, i, w, width, xansi.Strip(line))
+			}
+		}
+	}
+}
+
+// TestClampLineBreaksLongUnspacedToken covers the failure mode ansi.Wrap
+// alone can't fix: a token with no spaces (a long LaTeX-ish blob). The
+// safety net must hard-wrap it, and no character may be lost in doing so.
+func TestClampLineBreaksLongUnspacedToken(t *testing.T) {
+	const width = 50
+	in := "prefijo " + strings.Repeat("a_b", 30) + " sufijo final"
+	lines := clampLine(in, width)
+	if len(lines) < 2 {
+		t.Fatalf("expected the 90-cell token to be split, got %d line(s)", len(lines))
+	}
+	var joined string
+	for i, l := range lines {
+		if w := xansi.StringWidth(l); w > width {
+			t.Errorf("line %d is %d cells (> %d): %q", i, w, width, l)
+		}
+		joined += xansi.Strip(l)
+	}
+	// Hard-wrap preserves every printable character (no truncation).
+	if strings.ReplaceAll(in, " ", "") != strings.ReplaceAll(joined, " ", "") {
+		t.Errorf("characters lost in clamp:\n  in:  %q\n  out: %q", in, joined)
+	}
+}
+
+// TestClampLinePreservesANSIAndContent clamps a styled line wider than
+// the budget and asserts the re-wrapped pieces stay within budget and keep
+// every printable character (the clamp re-wraps; it must never truncate).
+func TestClampLinePreservesANSIAndContent(t *testing.T) {
+	const width = 40
+	// Red word run longer than the budget, glamour-style: SGR..reset chunks.
+	in := "\x1b[31m" + strings.Repeat("rojo ", 20) + "\x1b[0m"
+	lines := clampLine(in, width)
+	if len(lines) < 2 {
+		t.Fatalf("expected the over-long line to be split, got %d line(s)", len(lines))
+	}
+	var joined string
+	for i, l := range lines {
+		if w := xansi.StringWidth(l); w > width {
+			t.Errorf("line %d is %d cells (> %d): %q", i, w, width, l)
+		}
+		joined += xansi.Strip(l)
+	}
+	if strings.ReplaceAll(strings.TrimSpace(xansi.Strip(in)), " ", "") !=
+		strings.ReplaceAll(joined, " ", "") {
+		t.Errorf("printable content changed by clamp:\n  in:  %q\n  out: %q", xansi.Strip(in), joined)
+	}
+}
+
+// TestClampLineLeavesShortLinesAlone pins the cheap path: a line already
+// within budget comes back untouched and unsplit.
+func TestClampLineLeavesShortLinesAlone(t *testing.T) {
+	in := "\x1b[32mcorta y con estilo\x1b[0m"
+	got := clampLine(in, 80)
+	if len(got) != 1 || got[0] != in {
+		t.Fatalf("short line was modified: %q", got)
 	}
 }

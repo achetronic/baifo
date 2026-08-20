@@ -431,6 +431,16 @@ into `chatView.renderMessage` via a small per-message cache:
   `Document.Margin = 0`. The default has a 2-col left margin
   that pushes the agent's body away from the rest of the chat;
   zeroing it keeps user and root rows in the same left column.
+- **Width clamp** (`clampToWidth`): glamour v0.7.0 wraps via
+  muesli/reflow/wordwrap, which sometimes emits lines WIDER than the
+  wrap budget: it never breaks long unspaced tokens, miscalculates by
+  1–2 cells on some inputs, and indents block quotes with the `│ `
+  token OUTSIDE the budget. Every overflowing line wraps onto an extra
+  terminal row that `rowSpans` never counted, desyncing selection and
+  scroll (the "interface goes crazy" report). After each render we
+  re-wrap any over-budget line (ansi.Wrap, with ansi.Hardwrap as the
+  safety net for unspaced tokens) so no line ever exceeds the budget.
+  Re-wrap, not truncate — no character is lost.
 - **Graceful failure**: if Glamour errors out (rare, parsing edge
   cases), the renderer returns the original text. The chat
   never goes blank.
