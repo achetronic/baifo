@@ -10,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/glamour/ansi"
+	xansi "github.com/charmbracelet/x/ansi"
 )
 
 // markdown.go renders LLM responses through Glamour with three
@@ -162,6 +163,13 @@ func (c *markdownCache) render(key, text string, width int, force bool) string {
 	// The chat already provides spacing between messages via
 	// renderMessages, so we trim to keep the layout tight.
 	out = strings.Trim(out, "\n")
+	// Glamour (via muesli/reflow) sometimes emits lines WIDER than
+	// the wrap budget it was given (see clampToWidth). Every such
+	// line makes the terminal wrap an extra row the chat's rowSpans
+	// bookkeeping never counted, desyncing selection/scroll and
+	// visibly shifting the whole layout. Clamp before caching so
+	// every consumer (and every future glamour quirk) is covered.
+	out = clampToWidth(out, width)
 
 	if !ok {
 		e = &markdownEntry{}
@@ -231,6 +239,61 @@ func prepareForGlamour(text string) string {
 	// over. This produces a stable visual: closed body styled,
 	// dangling body as a code block in progress.
 	return closed + "\n\n" + dangling + "\n```"
+}
+
+// clampToWidth enforces the chat's hard layout invariant: no rendered
+// line may exceed the wrap budget handed to the renderer.
+//
+// Why it exists: glamour v0.7.0 wraps via muesli/reflow/wordwrap, which
+// (a) never breaks long unspaced tokens (a 90-cell LaTeX-ish blob like
+// a_ba_ba_ba… passes through intact), (b) miscalculates by 1–2 cells on
+// some inputs, letting a word slip past the edge, and (c) indents block
+// quotes with the "│ " token OUTSIDE the wrap budget (blockStack.Width
+// subtracts Indent+Margin, but the token written by MarginWriter lands on
+// top of the already-wrapped text). The result is lines of budget+1 or
+// budget+2 printable cells.
+//
+// In a terminal each overflowing line wraps onto an extra physical row
+// that chat's rowSpans never counted (renderMessages counts '\n'), so the
+// row↔message map drifts and selection, scrolling and repaint all shift —
+// the "interface goes crazy" report. Truncating would lose characters, so
+// instead we RE-WRAP the offending line: ansi.Wrap for a clean break at a
+// space, then ansi.Hardwrap as a safety net for the (rare) case of a token
+// with no spaces at all. Both are ANSI-aware and preserve the active SGR
+// style across the break, and glamour styles per segment (each chunk is a
+// self-closed SGR…reset), so no colour bleeds past the break point.
+//
+// Lines already within budget are returned untouched — the common case is
+// a single cheap width check per line.
+func clampToWidth(text string, width int) string {
+	if width < 8 {
+		return text
+	}
+	lines := strings.Split(text, "\n")
+	out := lines[:0]
+	for _, line := range lines {
+		out = append(out, clampLine(line, width)...)
+	}
+	return strings.Join(out, "\n")
+}
+
+// clampLine returns the given rendered line split into one or more lines,
+// each guaranteed to be at most width printable cells. See clampToWidth.
+func clampLine(line string, width int) []string {
+	if xansi.StringWidth(line) <= width {
+		return []string{line}
+	}
+	var out []string
+	for _, l := range strings.Split(xansi.Wrap(line, width, ""), "\n") {
+		if xansi.StringWidth(l) > width {
+			// No spaces to break at (a long unspaced token): hard-wrap,
+			// preserving spaces so no character is lost.
+			out = append(out, strings.Split(xansi.Hardwrap(l, width, true), "\n")...)
+		} else {
+			out = append(out, l)
+		}
+	}
+	return out
 }
 
 // buildMarkdownRenderer constructs a Glamour TermRenderer themed in
