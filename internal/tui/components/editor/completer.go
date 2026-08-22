@@ -212,7 +212,7 @@ func (c *completer) view() string {
 	}
 
 	box := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(frameBorders).
 		BorderForeground(c.styles.CompleterBorder).
 		Background(c.styles.CompleterBg).
 		Padding(0, 1).
@@ -289,7 +289,7 @@ func renderCompleterRow(text string, selected bool, width int, st Styles) string
 			Foreground(st.CompleterAccent).
 			Background(bg).
 			Bold(true).
-			Render("▌ ")
+			Render(selectionRail)
 		rowStyle = rowStyle.Bold(true)
 	}
 	// Manual truncation so the row width matches `width` even

@@ -14,6 +14,8 @@ import (
 	"image/color"
 
 	"charm.land/lipgloss/v2"
+
+	"github.com/achetronic/baifo/internal/platform/terminal"
 )
 
 // Base palette (fixed across every accent)
@@ -93,13 +95,55 @@ var canariasAccent = Accent{
 	Subtle:  lipgloss.Color("#5E3119"), // arcilla
 }
 
+// selectionRailGlyph is the character painted in the left column of
+// the focused chat message and selected palette rows. The pretty set
+// uses U+258C (left half block): present in every modern monospace
+// font and it stacks into a solid bar. Legacy Windows consoles (no
+// Windows Terminal, raster fonts) render it as tofu or with the wrong
+// cell width, so terminal.SupportsBoxDrawing degrades it to a plain
+// vertical bar (see issue #22).
+var selectionRailGlyph = "▌"
+
+// uiBorders is the border set every bordered component uses. The
+// pretty set is lipgloss' rounded border; legacy consoles get an
+// explicitly ASCII border (lipgloss.NormalBorder is still Unicode
+// box-drawing, which is exactly what those consoles can't render).
+var uiBorders = lipgloss.RoundedBorder()
+
+// asciiBorder is the pure-ASCII border used on legacy terminals.
+var asciiBorder = lipgloss.Border{
+	Top:         "-",
+	Bottom:      "-",
+	Left:        "|",
+	Right:       "|",
+	TopLeft:     "+",
+	TopRight:    "+",
+	BottomLeft:  "+",
+	BottomRight: "+",
+}
+
+// box drawing tokens used outside lipgloss borders: glamour's quote
+// bar and horizontal rule.
+var (
+	quoteIndentToken = "│ "
+	hruleToken       = "─"
+)
+
+func init() {
+	if !terminal.SupportsBoxDrawing() {
+		selectionRailGlyph = "|"
+		uiBorders = asciiBorder
+		quoteIndentToken = "| "
+		hruleToken = "-"
+	}
+}
+
 // Glyphs are pure ASCII, on purpose: anything exotic turns into
 // tofu boxes on default console fonts, and baifo must render on
-// every terminal with every font. The one companion character lives
-// outside this table: the selection rail, a CP437 half block present
-// in every monospace font, which needs full-cell height to stack
-// into a solid bar. Components must call theme.Glyph(name) and never
-// hardcode a glyph.
+// every terminal with every font. The companion characters (selection
+// rail, borders, quote bar, rules) live in the box-drawing block above
+// and are gated by terminal.SupportsBoxDrawing. Components must call
+// theme.Glyph(name) and never hardcode a glyph.
 var glyphs = map[string]string{
 	"root":        "R",
 	"static":      "S",
@@ -166,7 +210,7 @@ func (t Theme) Glyph(name string) string {
 // PanelBorder returns the border style for an unfocused panel.
 func (t Theme) PanelBorder() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(uiBorders).
 		BorderForeground(colorBorder).
 		Padding(0, 1)
 }
@@ -176,7 +220,7 @@ func (t Theme) PanelBorder() lipgloss.Style {
 // the active accent's primary tone.
 func (t Theme) PanelBorderFocused() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(uiBorders).
 		BorderForeground(t.Accent.Primary).
 		Padding(0, 1)
 }

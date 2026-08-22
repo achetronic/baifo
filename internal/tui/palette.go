@@ -199,7 +199,7 @@ func renderPalette(theme Theme, st paletteState, availableWidth int) string {
 	rows = append(rows, renderPaletteFooter(theme, st, width))
 
 	border := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(uiBorders).
 		BorderForeground(colorBorder).
 		BorderBackground(colorBGAlt).
 		Background(colorBGAlt)
@@ -270,7 +270,7 @@ func renderPaletteRow(theme Theme, item paletteItem, query string, selected bool
 		rail = lipgloss.NewStyle().
 			Foreground(theme.Accent.Primary).
 			Background(bg).
-			Render("▌") + lipgloss.NewStyle().Background(bg).Render(" ")
+			Render(selectionRailGlyph) + lipgloss.NewStyle().Background(bg).Render(" ")
 	} else {
 		rail = lipgloss.NewStyle().Background(bg).Render(rail)
 	}

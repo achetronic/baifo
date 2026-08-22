@@ -312,7 +312,7 @@ func renderOverlay(theme Theme, opts overlayOpts, w, h int) string {
 			curRows++
 		}
 		b.WriteByte('\n')
-		b.WriteString(theme.FaintText().Render(strings.Repeat("─", innerW)))
+		b.WriteString(theme.FaintText().Render(strings.Repeat(hruleToken, innerW)))
 		b.WriteByte('\n')
 		b.WriteString(footer)
 	}
