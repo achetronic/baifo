@@ -585,13 +585,13 @@ func renderToast(theme Theme, t Toast) string {
 	var border lipgloss.Style
 	switch t.Kind {
 	case ToastSuccess:
-		border = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(colorSuccess)
+		border = lipgloss.NewStyle().Border(uiBorders).BorderForeground(colorSuccess)
 	case ToastWarning:
-		border = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(colorWarning)
+		border = lipgloss.NewStyle().Border(uiBorders).BorderForeground(colorWarning)
 	case ToastError:
-		border = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(colorError)
+		border = lipgloss.NewStyle().Border(uiBorders).BorderForeground(colorError)
 	default:
-		border = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(colorTextDim)
+		border = lipgloss.NewStyle().Border(uiBorders).BorderForeground(colorTextDim)
 	}
 	title := theme.PrimaryText().Bold(true).Render(t.Title)
 	body := theme.DimText().Render(t.Body)

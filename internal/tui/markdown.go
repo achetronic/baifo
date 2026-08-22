@@ -11,6 +11,8 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/glamour/ansi"
 	xansi "github.com/charmbracelet/x/ansi"
+
+	"github.com/achetronic/baifo/internal/platform/terminal"
 )
 
 // markdown.go renders LLM responses through Glamour with three
@@ -169,7 +171,7 @@ func (c *markdownCache) render(key, text string, width int, force bool) string {
 	// bookkeeping never counted, desyncing selection/scroll and
 	// visibly shifting the whole layout. Clamp before caching so
 	// every consumer (and every future glamour quirk) is covered.
-	out = clampToWidth(out, width)
+	out = clampToWidth(terminal.StripVariationSelectors(out), width)
 
 	if !ok {
 		e = &markdownEntry{}
@@ -308,12 +310,18 @@ func clampLine(line string, width int) []string {
 // width is the wrap budget Glamour should respect. Passing 0 disables
 // wrap; we always pass a real width because the chat viewport has its
 // own bounds.
+//
+// Note the deliberate absence of glamour.WithEmoji(): it would rewrite
+// :shortcodes: into emoji graphemes whose rendered width disagrees
+// with x/ansi's measurement on some terminals (Windows Terminal with
+// emoji fallback fonts is the worst offender — issue #22). Emoji the
+// model writes literally still pass through, sanitised at the render
+// exit (StripVariationSelectors).
 func buildMarkdownRenderer(width int) (*glamour.TermRenderer, error) {
 	style := canariasMarkdownStyle()
 	return glamour.NewTermRenderer(
 		glamour.WithStyles(style),
 		glamour.WithWordWrap(width),
-		glamour.WithEmoji(),
 	)
 }
 
@@ -384,11 +392,11 @@ func canariasMarkdownStyle() ansi.StyleConfig {
 	// Block quotes: a clay side-bar + faded, italic lime-wash text.
 	s.BlockQuote.Color = sptr(mdLimeFaint)
 	s.BlockQuote.Italic = bptr(true)
-	s.BlockQuote.IndentToken = sptr("│ ")
+	s.BlockQuote.IndentToken = sptr(quoteIndentToken)
 
 	// Horizontal rule: a fine clay line instead of the grey dashes.
 	s.HorizontalRule.Color = sptr(mdClay)
-	s.HorizontalRule.Format = "\n────────\n"
+	s.HorizontalRule.Format = "\n" + strings.Repeat(hruleToken, 10) + "\n"
 
 	// Inline code: lime-wash on lightened picón, with a faint lava
 	// tint so it stands out against body text without a loud box.

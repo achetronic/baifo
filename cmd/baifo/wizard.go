@@ -13,6 +13,7 @@ import (
 	"charm.land/lipgloss/v2"
 
 	"github.com/achetronic/baifo/internal/config"
+	"github.com/achetronic/baifo/internal/platform/terminal"
 	"github.com/achetronic/baifo/internal/secrets"
 )
 
@@ -50,6 +51,12 @@ func runFirstRunWizard(flagDir string) (firstRunResult, error) {
 			}
 		}
 	}
+
+	restoreConsole, err := terminal.PrepareUTF8()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "baifo: console UTF-8 setup failed (continuing): %v\n", err)
+	}
+	defer restoreConsole()
 
 	p := tea.NewProgram(newWizardModel(dir))
 	m, err := p.Run()

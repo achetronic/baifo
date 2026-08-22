@@ -416,7 +416,7 @@ func editorModalFrame(title, body string, minW, maxW int, st Styles) string {
 		Render(title)
 
 	frame := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(frameBorders).
 		BorderForeground(st.ModalBorder).
 		Padding(0, 2).
 		Width(w)

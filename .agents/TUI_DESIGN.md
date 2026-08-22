@@ -444,6 +444,22 @@ into `chatView.renderMessage` via a small per-message cache:
 - **Graceful failure**: if Glamour errors out (rare, parsing edge
   cases), the renderer returns the original text. The chat
   never goes blank.
+- **Variation-selector stripping** (`terminal.StripVariationSelectors`):
+  emoji that carry U+FE0F legitimately render WIDER than x/ansi's
+  wcwidth reports on Windows Terminal with emoji fallback fonts, so a
+  measured-as-fitting line could still wrap physically (issue #22).
+  The render path strips the invisible selectors; the visible emoji
+  stays. `glamour.WithEmoji()` is deliberately NOT enabled so glamour
+  never introduces shortcode-converted emoji of its own.
+- **Terminal capability degradation** (`internal/platform/terminal`):
+  the selection rail (`▌`), rounded borders, quote bar (`│ `) and
+  rules (`─`) are package vars gated by `terminal.SupportsBoxDrawing`.
+  On legacy Windows consoles (no WT_SESSION/ConEmu/ANSICON/pty) they
+  degrade to a pure-ASCII set (`|`, `+---+`, `-`) so the row
+  bookkeeping stays in sync with what the terminal actually paints.
+  `cmd/baifo` also switches the console code page to UTF-8 at startup
+  (`terminal.PrepareUTF8`, restored on exit) because Bubble Tea v2
+  enables VT processing but never touches the code page.
 
 What we explicitly do NOT do:
 

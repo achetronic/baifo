@@ -700,7 +700,7 @@ func (c *chatView) specialExpandedBox(body string, idx int) string {
 	}
 
 	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(uiBorders).
 		BorderForeground(colorBGFocus).
 		BorderBackground(colorBGFocus).
 		Background(colorBGFocus).
@@ -745,8 +745,10 @@ func (c *chatView) renderMarkdownBody(text string, idx int, force bool) string {
 // chatSelectionMarker is the glyph painted in the left column of
 // every line of the focused message. When the message is not
 // selected, the gutter collapses to spaces of the same width so
-// neighbouring rows stay aligned in the same column.
-const chatSelectionMarker = "▌ "
+// neighbouring rows stay aligned in the same column. The value comes
+// from theme.go's box-drawing block: the pretty half-block on capable
+// terminals, an ASCII bar on legacy Windows consoles (issue #22).
+var chatSelectionMarker = selectionRailGlyph + " "
 
 // applyGutter prepends a left-column gutter to every line of the
 // given block. When selected is true, every line gets the accent
@@ -1185,7 +1187,7 @@ func (c *chatView) toolRowExpandedBody(call Message, result *Message) string {
 	if !hasArgs && !hasResult {
 		emptyText := c.withToolBG(c.theme.FaintText()).Render("(no args, no result)")
 		boxStyle := lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
+			Border(uiBorders).
 			BorderForeground(colorBGFocus).
 			BorderBackground(colorBGFocus).
 			Background(colorBGFocus).
@@ -1208,7 +1210,7 @@ func (c *chatView) toolRowExpandedBody(call Message, result *Message) string {
 	content := strings.Join(blocks, "\n\n")
 
 	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(uiBorders).
 		BorderForeground(colorBGFocus).
 		BorderBackground(colorBGFocus).
 		Background(colorBGFocus).

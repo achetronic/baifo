@@ -13,6 +13,7 @@ import (
 
 	"github.com/achetronic/baifo/internal/app"
 	"github.com/achetronic/baifo/internal/config"
+	"github.com/achetronic/baifo/internal/platform/terminal"
 	_ "github.com/achetronic/baifo/internal/providers/allproviders"
 	"github.com/achetronic/baifo/internal/server"
 	"github.com/achetronic/baifo/internal/tui"
@@ -25,6 +26,16 @@ import (
 // agent, the TUI still launches and shows the configuration-required
 // state.
 func runTUI(dir string) exitCode {
+	// On Windows this switches the console to UTF-8 (Bubble Tea enables
+	// VT processing but never touches the code page — issue #22); on
+	// POSIX it is a no-op. Restored on exit so the user's shell gets
+	// its code page back.
+	restoreConsole, err := terminal.PrepareUTF8()
+	if err != nil {
+		slog.Debug("console UTF-8 setup failed; continuing", "error", err)
+	}
+	defer restoreConsole()
+
 	cfg, err := config.Load(config.FilePath(dir))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "baifo: load config: %v\n", err)

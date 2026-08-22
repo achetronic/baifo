@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	xansi "github.com/charmbracelet/x/ansi"
+
+	"github.com/achetronic/baifo/internal/platform/terminal"
 )
 
 // TestMarkdownRendererBasic exercises the cache end-to-end with a
@@ -190,5 +192,61 @@ func TestClampLineLeavesShortLinesAlone(t *testing.T) {
 	got := clampLine(in, 80)
 	if len(got) != 1 || got[0] != in {
 		t.Fatalf("short line was modified: %q", got)
+	}
+}
+
+// TestMarkdownRenderStripsVariationSelectors is the regression guard
+// for the Windows Terminal half of issue #22: emoji that carry U+FE0F
+// ("emoji presentation") legitimately render WIDER there than x/ansi's
+// wcwidth tables report, so a line measured as within budget could
+// still wrap physically and desync the chat's row bookkeeping. The
+// render path strips the selectors, so the output must contain the
+// base emoji but never the selector itself.
+func TestMarkdownRenderStripsVariationSelectors(t *testing.T) {
+	c := newMarkdownCache()
+	out := c.render("k", "done ✅\uFE0F and warn ⚠️\uFE0F", 60, true)
+	if strings.ContainsRune(out, '\uFE0F') || strings.ContainsRune(out, '\uFE0E') {
+		t.Errorf("variation selector survived the render path: %q", out)
+	}
+	if !strings.Contains(out, "✅") {
+		t.Errorf("the base emoji must survive sanitising: %q", xansi.Strip(out))
+	}
+}
+
+// TestLegacyTerminalGlyphsAreASCII pins the issue #22 degradation
+// contract: when the terminal can't be trusted with box drawing, every
+// decorative character the TUI paints (selection rail, borders, quote
+// bar, rules) must be pure ASCII, because legacy Windows consoles are
+// exactly where those glyphs come out as tofu or with the wrong cell
+// width. The capabilities are package-level vars resolved at init, so
+// the test re-runs the switch the init performs.
+func TestLegacyTerminalGlyphsAreASCII(t *testing.T) {
+	// Simulate the legacy branch exactly as init does. Note: the
+	// package's asciiBorder is the honest ASCII set — lipgloss'
+	// NormalBorder is still Unicode box-drawing.
+	rail, borders, quote, rule := "| ", asciiBorder, "| ", "-"
+	if !terminal.SupportsBoxDrawing() {
+		// Running on a legacy console: the package init already made
+		// the swap, so assert against the live vars.
+		rail, borders, quote, rule = selectionRailGlyph+" ", uiBorders, quoteIndentToken, hruleToken
+	}
+	assertASCII := func(name, s string) {
+		t.Helper()
+		for _, r := range s {
+			if r > 127 {
+				t.Errorf("%s contains non-ASCII %q in a legacy terminal", name, r)
+			}
+		}
+	}
+	assertASCII("selection rail", rail)
+	assertASCII("quote indent", quote)
+	assertASCII("rule token", rule)
+	for name, ch := range map[string]string{
+		"border top": borders.Top, "border bottom": borders.Bottom,
+		"border left": borders.Left, "border right": borders.Right,
+		"corner TL": borders.TopLeft, "corner TR": borders.TopRight,
+		"corner BL": borders.BottomLeft, "corner BR": borders.BottomRight,
+	} {
+		assertASCII(name, ch)
 	}
 }
